@@ -75,6 +75,8 @@ arguments:
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
  -c | --connection
  -m | --mount-point     path to a directory
+ -l | --local-file      a single file for uploading over FTP
+ -r | --remote-path     an absolute remote path for the FTP account
 "
     exit 0;
 }
@@ -95,13 +97,15 @@ fi
 
 
 # read the options
-ARGS=`getopt -o "hc:f:m:" -l "help,conf-file:,ftp:,mount-point:" -- "$@"`
+ARGS=`getopt -o "hc:f:m:l:r::" -l "help,conf-file:,ftp:,mount-point:,local-file:,remote-path::" -- "$@"`
 eval set -- "$ARGS"
 
 # global variable 
 _conf_path_="";
 _ftp_="";
 _mount_point_="";
+_local_file_="";
+_remote_path_="";
 
 
 # extract options and their arguments into variables.
@@ -150,8 +154,21 @@ while true ; do
                     fi
                 ;;
 
-                upload ) ;;
-                download ) ;;
+                upload )
+                    if ! [[ "$@" =~ ' -l ' || "$@" =~ ' --local-file ' ]]; then
+                        echo "$(colorize 'yellow' 'WARNING') ...";
+                        echo "A file is required with 'upload' action";
+                        echo "Use '-l' or '--local-file' and give it a single file name";
+                        exit 2;
+                    elif ! [[ "$@" =~ ' -c ' || "$@" =~ ' --conf-file' ]]; then
+                        echo "$(colorize 'yellow' 'WARNING') ...";
+                        echo "The file is required with 'upload' action.";
+                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                        exit 2;
+                    fi
+                ;;
+                download )
+                ;;
                 * )
                     echo "$@ is not a valid ftp";
                 ;;
@@ -184,6 +201,18 @@ while true ; do
             fi
             shift 2;
         ;;
+
+        ## -l or --local-file
+        -l | --local-file )
+            _local_file_=$2;
+            shift 2;
+        ;;
+
+        #
+        -r | --remote-path )
+        ;;
+
+        # last line
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
     esac
@@ -224,6 +253,8 @@ case $_ftp_ in
         print_result $? 'ftp' 'umount';
         ;;
     upload )
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/ -T "${_local_file_}";
+        print_result $? 'ftp' 'upload';
     ;;
     download ) ;;
 esac
