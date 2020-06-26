@@ -73,7 +73,7 @@ arguments:
 function __debug(){
     echo '######### DEBUG ##########';
     echo "conf-file $_conf_path_";
-    echo "action $_action_";
+    echo "ftp $_ftp_";
     echo "mount-point $_mount_point_";
     echo 
     echo 
@@ -86,12 +86,12 @@ fi
 
 
 # read the options
-ARGS=`getopt -o "hc:a:m:" -l "help,conf-file:,action:,mount-point:" -- "$@"`
+ARGS=`getopt -o "hc:f:m:" -l "help,conf-file:,ftp:,mount-point:" -- "$@"`
 eval set -- "$ARGS"
 
 # global variable 
 _conf_path_="";
-_action_="";
+_ftp_="";
 _mount_point_="";
 
 
@@ -119,15 +119,15 @@ while true ; do
             shift 2;
         ;;
         
-        # --action
-        -a | --action )
-            _action_=$2;
+        # --ftp
+        -f | --ftp )
+            _ftp_=$2;
             case "$2" in
                 check ) ;;
                 mount )
                     if ! [[ "$@" =~ ' -m ' || "$@" =~ ' --mount-point ' ]]; then
                         echo "WARNING ...";
-                        echo "With 'mount' action a 'mount-point' is required.";
+                        echo "With 'mount' ftp a 'mount-point' is required.";
                         echo "Use -m or --mount-point with a path.";
                         exit 2;
                     fi
@@ -135,7 +135,7 @@ while true ; do
                 umount )
                     if ! [[ "$@" =~ ' -m ' || "$@" =~ ' --mount-point ' ]]; then
                         echo "WARNING ...";
-                        echo "With 'umount' action a 'mount-point' is required.";
+                        echo "With 'umount' ftp a 'mount-point' is required.";
                         echo "Use -m or --mount-point with a path.";
                         exit 2;
                     fi
@@ -144,7 +144,7 @@ while true ; do
                 upload ) ;;
                 download ) ;;
                 * )
-                    echo "$@ is not a valid action";
+                    echo "$@ is not a valid ftp";
                 ;;
             esac
             shift 2;
@@ -180,7 +180,7 @@ while true ; do
     esac
 done
 
-# Now take action
+# Now take ftp
 
 declare -a  _conf_file_=($(cat $_conf_path_));
 
@@ -201,7 +201,7 @@ _user_pass_=${_conf_file_[2]};
 
 
 
-case $_action_ in 
+case $_ftp_ in 
     check )
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/
         echo -e "\n\nFTP connection check for ${_user_domain_} ... [ OK ]";
