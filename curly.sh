@@ -167,6 +167,12 @@ while true ; do
                     fi
                 ;;
                 download )
+                    if ! [[ "$@" =~ ' -r ' || "$@" =~ ' --remote-path ' ]]; then
+                        echo "$(colorize 'red' 'ERROR') ...";
+                        echo "Absolute path to the remote file is required!.";
+                        echo "Use '-r' or '--remote-path with a given file name.'.";
+                        exit 2;
+                    fi
                 ;;
                 * )
                     echo "$@ is not a valid ftp";
@@ -209,7 +215,7 @@ while true ; do
 
         #
         -r | --remote-path )
-            _remote_path_="$2/"
+            _remote_path_="$2";
             shift 2;
         ;;
 
@@ -246,7 +252,7 @@ _user_pass_=${_conf_file_[2]};
 
 case $_ftp_ in 
     check )
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_;
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_/;
         print_result $? 'ftp' 'check';
     ;;
     mount )
@@ -261,6 +267,9 @@ case $_ftp_ in
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_ -T "${_local_file_}";
         print_result $? 'ftp' 'upload';
     ;;
-    download ) ;;
+    download )
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_;
+        print_result $? 'ftp' 'download';
+    ;;
 esac
 
