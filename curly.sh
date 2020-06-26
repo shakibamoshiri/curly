@@ -5,18 +5,22 @@
 _c_red="\x1b[1;31m";
 _c_green="\x1b[1;32m";
 _c_yellow="\x1b[1;33m";
+_c_cyan="\x1b[1;36m";
 _c_reset="\x1b[m";
 
 function colorize(){
     case $1 in
         yellow )
-            echo -e ${_c_yellow}$2${_c_reset}
+            echo -e ${_c_yellow}$2${_c_reset};
         ;;
         green )
-            echo -e ${_c_green}$2${_c_reset}
+            echo -e ${_c_green}$2${_c_reset};
         ;;
         red )
-            echo -e  ${_c_red}$2${_c_reset}
+            echo -e  ${_c_red}$2${_c_reset};
+        ;;
+        cyan )
+            echo -e  ${_c_cyan}$2${_c_reset};
         ;;
     esac
 }
@@ -46,23 +50,20 @@ definition:
 
 arguments:
  -h | --help        print this hel
- -c | --conf-file   path to configure file containing ...
-                        a domain name
-                        username of that domain
-                        password for that username
+ -c | --conf-file   path to configuration file
  -f | --ftp         check / mount / umount / upload / download
-                        $(colorize 'yellow' 'check'): checking FTP connection
-                        $(colorize 'yellow' 'mount'): mount over FTP
-                        $(colorize 'yellow' 'umount'): umount: umount FTP mount point
-                        $(colorize 'yellow' 'upload'): upload: upload to a FTP account
-                        $(colorize 'yellow' 'download'): download: download from a FTP account
+                        $(colorize 'cyan' 'check'): checking FTP connection
+                        $(colorize 'cyan' 'mount'): mount over FTP
+                        $(colorize 'cyan' 'umount'): umount: umount FTP mount point
+                        $(colorize 'cyan' 'upload'): upload: upload to a FTP account
+                        $(colorize 'cyan' 'download'): download: download from a FTP account
  -s | --ssl         valid / date
-                        $(colorize 'yellow' 'valid'): checking if SSL of a domain is valid
-                        $(colorize 'yellow' 'date'): check start and end date of the certificate
+                        $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
+                        $(colorize 'cyan' 'date'): check start and end date of the certificate
  -H | --http        status / redirect / gzip
-                        $(colorize 'yellow' 'status'): print header for the GET request
-                        $(colorize 'yellow' 'redirect'): check if redirect id done or not
-                        $(colorize 'yellow' 'gzip'): check if gzip is enabled or not
+                        $(colorize 'cyan' 'status'): print header for the GET request
+                        $(colorize 'cyan' 'redirect'): check if redirect id done or not
+                        $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
  -c | --connection
  -m | --mount-point     path to a directory
 "
