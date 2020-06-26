@@ -97,7 +97,7 @@ fi
 
 
 # read the options
-ARGS=`getopt -o "hc:f:m:l:r::" -l "help,conf-file:,ftp:,mount-point:,local-file:,remote-path::" -- "$@"`
+ARGS=`getopt -o "hc:f:m:l:r:" -l "help,conf-file:,ftp:,mount-point:,local-file:,remote-path:" -- "$@"`
 eval set -- "$ARGS"
 
 # global variable 
@@ -118,14 +118,13 @@ while true ; do
         # configure file
         -c | --conf-file )
             _conf_path_=$2;
-
             # check if the file exist and it is readable
             if ! [[ -r $_conf_path_ ]]; then
-                echo "ERROR ...";
+                echo "$(colorize 'red' 'ERROR' ) ...";
                 echo "file: $_conf_path_ does NOT exist!";
                 exit 1;
             elif ! [[ -s $_conf_path_ ]]; then
-                echo "WARNING ...";
+                echo "$(colorize 'yellow' 'WARNING' ) ...";
                 echo "file: $_conf_path_ is empty!";
                 exit 0;
             fi
@@ -210,11 +209,17 @@ while true ; do
 
         #
         -r | --remote-path )
+            _remote_path_="$2/"
+            shift 2;
         ;;
 
         # last line
-        --) shift ; break ;;
-        *) echo "Internal error!" ; exit 1 ;;
+         --)
+            shift;
+            break;
+         ;;
+
+         *) echo "Internal error!" ; exit 1 ;;
     esac
 done
 
@@ -241,7 +246,7 @@ _user_pass_=${_conf_file_[2]};
 
 case $_ftp_ in 
     check )
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_;
         print_result $? 'ftp' 'check';
     ;;
     mount )
@@ -253,7 +258,7 @@ case $_ftp_ in
         print_result $? 'ftp' 'umount';
         ;;
     upload )
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/ -T "${_local_file_}";
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_ -T "${_local_file_}";
         print_result $? 'ftp' 'upload';
     ;;
     download ) ;;
