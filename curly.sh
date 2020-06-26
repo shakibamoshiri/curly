@@ -25,6 +25,15 @@ function colorize(){
     esac
 }
 
+function print_result(){
+    echo -e "\noption: $2";
+    echo "action:" $(colorize 'cyan'  $3);
+    if [[ $1 == 0 ]]; then
+        echo "status:" $(colorize 'green' 'done');
+    else
+        echo "status:" $(colorize 'red' 'ERROR');
+    fi
+}
 
 _curl_path_=$(which curl);
 _curlftpfs_path_=$(which curlftpfs);
@@ -204,26 +213,16 @@ _user_pass_=${_conf_file_[2]};
 case $_ftp_ in 
     check )
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/
-        echo -e "\n\nFTP connection check for ${_user_domain_} ... [ OK ]";
+        print_result $? 'ftp' 'check';
     ;;
     mount )
         curlftpfs "${_user_name_}:${_user_pass_}@${_user_domain_}" $_mount_point_
-        if [[ $? == 0 ]]; then
-            echo "domain ${_user_domain_} mounted at ${_mount_point_}";
-        else
-            echo "ERROR ...";
-            echo "Could NOT mount ${_user_domain_}":
-        fi
+        print_result $? 'ftp' 'mount';
     ;;
     umount )
         sudo umount $_mount_point_;
-        if [[ $? == 0 ]]; then
-            echo "domain ${_user_domain_} at ${_mount_point_} umounted";
-        else
-            echo "ERROR ...";
-            echo "Could NOT umount ${_user_domain_} at ${_mount_point_}":
-        fi
-    ;;
+        print_result $? 'ftp' 'umount';
+        ;;
     upload )
     ;;
     download ) ;;
