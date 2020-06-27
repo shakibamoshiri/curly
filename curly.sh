@@ -128,6 +128,23 @@ while true ; do
                 echo "file: $_conf_path_ is empty!";
                 exit 0;
             fi
+
+            declare -a  _conf_file_=($(cat $_conf_path_));
+            # check if length of the array is 3
+            if [[ ${#_conf_file_[@]} != 3 ]]; then
+                echo "$(colorize 'yellow' 'WARNING') ...";
+                echo "conf-file format is NOT valid or some lines are missed!";
+                echo -e "\nRight format ...";
+                echo "example.com  # should be a domain name or an IP address";
+                echo "username     # should be the username";
+                echo "12345        # should be the password for that username";
+                exit 2;
+            fi
+
+            _user_domain_=${_conf_file_[0]};
+            _user_name_=${_conf_file_[1]};
+            _user_pass_=${_conf_file_[2]};
+
             shift 2;
         ;;
         
@@ -228,25 +245,6 @@ while true ; do
          *) echo "Internal error!" ; exit 1 ;;
     esac
 done
-
-# Now take ftp
-
-declare -a  _conf_file_=($(cat $_conf_path_));
-
-# check if length of the array is 3
-if [[ ${#_conf_file_[@]} != 3 ]]; then
-    echo "WARNING ...";
-    echo "conf-file format is NOT valid or some lines are missed!";
-    echo -e "\nRight format ...";
-    echo "example.com  # should be a domain name or an IP address";
-    echo "username     # should be the username";
-    echo "12345        # should be the password for that username";
-    exit 2;
-fi
-
-_user_domain_=${_conf_file_[0]};
-_user_name_=${_conf_file_[1]};
-_user_pass_=${_conf_file_[2]};
 
 
 
