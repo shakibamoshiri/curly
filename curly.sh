@@ -29,7 +29,7 @@ function print_result(){
     echo -e "\noption: $2";
     echo "action:" $(colorize 'cyan'  $3);
     if [[ $1 == 0 ]]; then
-        echo "status:" $(colorize 'green' 'done');
+        echo "status:" $(colorize 'green' 'OK');
     else
         echo "status:" $(colorize 'red' 'ERROR');
     fi
