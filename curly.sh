@@ -107,6 +107,44 @@ _mount_point_="";
 _local_file_="";
 _remote_path_="";
 
+# setting flags for each option we have
+declare -i flag_conf_path=0;
+declare -i flag_ftp=0;
+declare -i flag_mount_point=0;
+declare -i flag_local_file=0;
+declare -i flag_remote_path=0;
+
+declare -a _conf_file_;
+
+function check_conf_path(){
+    # check if the file exist and it is readable
+    if ! [[ -r $_conf_path_ ]]; then
+        echo "$(colorize 'red' 'ERROR' ) ...";
+        echo "file: $_conf_path_ does NOT exist!";
+        exit 1;
+    elif ! [[ -s $_conf_path_ ]]; then
+        echo "$(colorize 'yellow' 'WARNING' ) ...";
+        echo "file: $_conf_path_ is empty!";
+        exit 0;
+    fi
+
+    _conf_file_=($(cat $_conf_path_));
+    # check if length of the array is 3
+    if [[ ${#_conf_file_[@]} != 3 ]]; then
+        echo "$(colorize 'yellow' 'WARNING') ...";
+        echo "conf-file format is NOT valid or some lines are missed!";
+        echo -e "\nRight format ...";
+        echo "example.com  # should be a domain name or an IP address";
+        echo "username     # should be the username";
+        echo "12345        # should be the password for that username";
+        exit 2;
+    fi
+
+    _user_domain_=${_conf_file_[0]};
+    _user_name_=${_conf_file_[1]};
+    _user_pass_=${_conf_file_[2]};
+
+}
 
 # extract options and their arguments into variables.
 while true ; do
@@ -117,52 +155,37 @@ while true ; do
         
         # configure file
         -c | --conf-file )
+            flag_conf_path=1;
             _conf_path_=$2;
-            # check if the file exist and it is readable
-            if ! [[ -r $_conf_path_ ]]; then
-                echo "$(colorize 'red' 'ERROR' ) ...";
-                echo "file: $_conf_path_ does NOT exist!";
-                exit 1;
-            elif ! [[ -s $_conf_path_ ]]; then
-                echo "$(colorize 'yellow' 'WARNING' ) ...";
-                echo "file: $_conf_path_ is empty!";
-                exit 0;
-            fi
-
-            declare -a  _conf_file_=($(cat $_conf_path_));
-            # check if length of the array is 3
-            if [[ ${#_conf_file_[@]} != 3 ]]; then
-                echo "$(colorize 'yellow' 'WARNING') ...";
-                echo "conf-file format is NOT valid or some lines are missed!";
-                echo -e "\nRight format ...";
-                echo "example.com  # should be a domain name or an IP address";
-                echo "username     # should be the username";
-                echo "12345        # should be the password for that username";
-                exit 2;
-            fi
-
-            _user_domain_=${_conf_file_[0]};
-            _user_name_=${_conf_file_[1]};
-            _user_pass_=${_conf_file_[2]};
-
+            check_conf_path
+            
             shift 2;
         ;;
         
         # --ftp
         -f | --ftp )
+            flag_ftp=1;
             _ftp_=$2;
             case "$2" in
-                check ) ;;
+                check )
+                ;;
+
                 mount )
-                    if ! [[ "$@" =~ ' -m ' || "$@" =~ ' --mount-point ' ]]; then
+                    if [[ $flag_conf_path == 0 ]]; then
+                        echo "$(colorize 'red' 'ERROR') ...";
+                        echo "The configuration file is required with 'upload' action.";
+                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                        exit 2;
+                    elif [[ $flag_mount_point == 0 ]]; then
                         echo "WARNING ...";
                         echo "With 'mount' ftp a 'mount-point' is required.";
                         echo "Use -m or --mount-point with a path.";
                         exit 2;
                     fi
                 ;;
+
                 umount )
-                    if ! [[ "$@" =~ ' -m ' || "$@" =~ ' --mount-point ' ]]; then
+                    if [[ $flag_mount_point == 0 ]]; then
                         echo "WARNING ...";
                         echo "With 'umount' ftp a 'mount-point' is required.";
                         echo "Use -m or --mount-point with a path.";
@@ -171,26 +194,33 @@ while true ; do
                 ;;
 
                 upload )
-                    if ! [[ "$@" =~ ' -l ' || "$@" =~ ' --local-file ' ]]; then
+                    if [[ $flag_conf_path == 0 ]]; then
+                        echo "$(colorize 'red' 'ERROR') ...";
+                        echo "The configuration file is required with 'upload' action.";
+                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                        exit 2;
+                    elif [[ $flag_local_file == 0 ]]; then
                         echo "$(colorize 'yellow' 'WARNING') ...";
                         echo "A file is required with 'upload' action";
                         echo "Use '-l' or '--local-file' and give it a single file name";
                         exit 2;
-                    elif ! [[ "$@" =~ ' -c ' || "$@" =~ ' --conf-file' ]]; then
-                        echo "$(colorize 'yellow' 'WARNING') ...";
-                        echo "The file is required with 'upload' action.";
-                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-                        exit 2;
                     fi
                 ;;
+
                 download )
-                    if ! [[ "$@" =~ ' -r ' || "$@" =~ ' --remote-path ' ]]; then
+                    if [[ $flag_conf_path == 0 ]]; then
+                        echo "$(colorize 'red' 'ERROR') ...";
+                        echo "The configuration file is required with 'upload' action.";
+                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                        exit 2;
+                    elif [[ $flag_remote_path == 0 ]]; then
                         echo "$(colorize 'red' 'ERROR') ...";
                         echo "Absolute path to the remote file is required!.";
                         echo "Use '-r' or '--remote-path with a given file name.'.";
                         exit 2;
                     fi
                 ;;
+
                 * )
                     echo "$@ is not a valid ftp";
                 ;;
@@ -200,6 +230,7 @@ while true ; do
 
         # --mount-point
         -m | --mount-point )
+            flag_mount_point=1;
             _mount_point_=$2;
 
             # check if the directory exist
@@ -226,12 +257,14 @@ while true ; do
 
         ## -l or --local-file
         -l | --local-file )
+            flag_local_file=1;
             _local_file_=$2;
             shift 2;
         ;;
 
         #
         -r | --remote-path )
+            flag_remote_path=1;
             _remote_path_="$2";
             shift 2;
         ;;
