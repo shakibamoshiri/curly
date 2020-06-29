@@ -1,29 +1,7 @@
 #!/bin/bash
 
-
-### set colors ###
-_c_red="\x1b[1;31m";
-_c_green="\x1b[1;32m";
-_c_yellow="\x1b[1;33m";
-_c_cyan="\x1b[1;36m";
-_c_reset="\x1b[m";
-
-function colorize(){
-    case $1 in
-        yellow )
-            echo -e ${_c_yellow}$2${_c_reset};
-        ;;
-        green )
-            echo -e ${_c_green}$2${_c_reset};
-        ;;
-        red )
-            echo -e  ${_c_red}$2${_c_reset};
-        ;;
-        cyan )
-            echo -e  ${_c_cyan}$2${_c_reset};
-        ;;
-    esac
-}
+# loading modules
+. curly-module/colorize.sh;
 
 function print_result(){
     echo -e "\noption: $2";
