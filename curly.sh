@@ -3,6 +3,7 @@
 # loading modules
 . curly-module/colorize.sh;
 . curly-module/__help.sh;
+. curly-module/__debug.sh;
 
 function print_result(){
     echo -e "\noption: $2";
@@ -32,15 +33,6 @@ if ! [[ -x $_curlftpfs_path_ ]]; then
 fi
 
 
-function __debug(){
-    echo '######### DEBUG ##########';
-    echo "conf-file $_conf_path_";
-    echo "ftp $_ftp_";
-    echo "mount-point $_mount_point_";
-    echo 
-    echo 
-    echo -e "1. $_user_domain_ \n2. $_user_name_ \n3. $_user_pass_";
-}
 
 if [[ $1 == "" ]]; then
     __help;
