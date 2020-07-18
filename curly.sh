@@ -1,9 +1,61 @@
 #!/bin/bash
 
-# loading modules
-. curly-module/colorize.sh;
-. curly-module/__help.sh;
-. curly-module/__debug.sh;
+# Associate Array
+declare -A _colors_;
+_colors_[ 'red' ]='\x1b[1;31m';
+_colors_[ 'green' ]='\x1b[1;32m';
+_colors_[ 'yellow' ]='\x1b[1;33m';
+_colors_[ 'cyan' ]='\x1b[1;36m';
+_colors_[ 'reset' ]='\x1b[0m';
+
+function colorize(){
+    if [[ ${_colors_[ $1 ]} ]]; then
+        echo -e "${_colors_[ $1 ]}$2${_colors_[ 'reset' ]}";
+    else
+        echo 'wrong color name!';
+    fi
+}
+
+# __help function
+function __help(){
+    echo -e  " $0 help ...\n
+definition:
+ doing things in a 'curl' way ...
+
+arguments:
+ -h | --help        print this hel
+ -c | --conf-file   path to configuration file
+ -f | --ftp         check / mount / umount / upload / download
+                        $(colorize 'cyan' 'check'): checking FTP connection
+                        $(colorize 'cyan' 'mount'): mount over FTP
+                        $(colorize 'cyan' 'umount'): umount: umount FTP mount point
+                        $(colorize 'cyan' 'upload'): upload: upload to a FTP account
+                        $(colorize 'cyan' 'download'): download: download from a FTP account
+ -s | --ssl         valid / date
+                        $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
+                        $(colorize 'cyan' 'date'): check start and end date of the certificate
+ -H | --http        status / redirect / gzip
+                        $(colorize 'cyan' 'status'): print header for the GET request
+                        $(colorize 'cyan' 'redirect'): check if redirect id done or not
+                        $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
+ -c | --connection
+ -m | --mount-point     path to a directory
+ -l | --local-file      a single file for uploading over FTP
+ -r | --remote-path     an absolute remote path for the FTP account
+"
+    exit 0;
+}
+
+# __debug module
+function __debug(){
+    echo '######### DEBUG ##########';
+    echo "conf-file $_conf_path_";
+    echo "ftp $_ftp_";
+    echo "mount-point $_mount_point_";
+    echo
+    echo
+    echo -e "1. $_user_domain_ \n2. $_user_name_ \n3. $_user_pass_";
+}
 
 function print_result(){
     echo -e "\noption: $2";
