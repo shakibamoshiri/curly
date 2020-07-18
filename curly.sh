@@ -166,54 +166,15 @@ while true ; do
                 ;;
 
                 mount )
-                    if [[ $flag_conf_path == 0 ]]; then
-                        echo "$(colorize 'red' 'ERROR') ...";
-                        echo "The configuration file is required with 'upload' action.";
-                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-                        exit 2;
-                    elif [[ $flag_mount_point == 0 ]]; then
-                        echo "WARNING ...";
-                        echo "With 'mount' ftp a 'mount-point' is required.";
-                        echo "Use -m or --mount-point with a path.";
-                        exit 2;
-                    fi
                 ;;
 
                 umount )
-                    if [[ $flag_mount_point == 0 ]]; then
-                        echo "WARNING ...";
-                        echo "With 'umount' ftp a 'mount-point' is required.";
-                        echo "Use -m or --mount-point with a path.";
-                        exit 2;
-                    fi
                 ;;
 
                 upload )
-                    if [[ $flag_conf_path == 0 ]]; then
-                        echo "$(colorize 'red' 'ERROR') ...";
-                        echo "The configuration file is required with 'upload' action.";
-                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-                        exit 2;
-                    elif [[ $flag_local_file == 0 ]]; then
-                        echo "$(colorize 'yellow' 'WARNING') ...";
-                        echo "A file is required with 'upload' action";
-                        echo "Use '-l' or '--local-file' and give it a single file name";
-                        exit 2;
-                    fi
                 ;;
 
                 download )
-                    if [[ $flag_conf_path == 0 ]]; then
-                        echo "$(colorize 'red' 'ERROR') ...";
-                        echo "The configuration file is required with 'upload' action.";
-                        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-                        exit 2;
-                    elif [[ $flag_remote_path == 0 ]]; then
-                        echo "$(colorize 'red' 'ERROR') ...";
-                        echo "Absolute path to the remote file is required!.";
-                        echo "Use '-r' or '--remote-path with a given file name.'.";
-                        exit 2;
-                    fi
                 ;;
 
                 * )
@@ -282,18 +243,61 @@ case $_ftp_ in
         print_result $? 'ftp' 'check';
     ;;
     mount )
+        if [[ $flag_conf_path == 0 ]]; then
+            echo "$(colorize 'red' 'ERROR') ...";
+            echo "The configuration file is required with 'upload' action.";
+            echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+            exit 2;
+        elif [[ $flag_mount_point == 0 ]]; then
+            echo "WARNING ...";
+            echo "With 'mount' ftp a 'mount-point' is required.";
+            echo "Use -m or --mount-point with a path.";
+            exit 2;
+        fi
+
         curlftpfs "${_user_name_}:${_user_pass_}@${_user_domain_}" $_mount_point_
         print_result $? 'ftp' 'mount';
     ;;
     umount )
+        if [[ $flag_mount_point == 0 ]]; then
+            echo "WARNING ...";
+            echo "With 'umount' ftp a 'mount-point' is required.";
+            echo "Use -m or --mount-point with a path.";
+            exit 2;
+        fi
+
         sudo umount $_mount_point_;
         print_result $? 'ftp' 'umount';
         ;;
     upload )
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_ -T "${_local_file_}";
+        if [[ $flag_conf_path == 0 ]]; then
+            echo "$(colorize 'red' 'ERROR') ...";
+            echo "The configuration file is required with 'upload' action.";
+            echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+            exit 2;
+        elif [[ $flag_local_file == 0 ]]; then
+            echo "$(colorize 'yellow' 'WARNING') ...";
+            echo "A file is required with 'upload' action";
+            echo "Use '-l' or '--local-file' and give it a single file name";
+            exit 2;
+        fi
+
+        curl  --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_ -T "${_local_file_}";
         print_result $? 'ftp' 'upload';
     ;;
     download )
+        if [[ $flag_conf_path == 0 ]]; then
+            echo "$(colorize 'red' 'ERROR') ...";
+            echo "The configuration file is required with 'upload' action.";
+            echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+            exit 2;
+        elif [[ $flag_remote_path == 0 ]]; then
+            echo "$(colorize 'red' 'ERROR') ...";
+            echo "Absolute path to the remote file is required!.";
+            echo "Use '-r' or '--remote-path with a given file name.'.";
+            exit 2;
+        fi
+
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_;
         print_result $? 'ftp' 'download';
     ;;
