@@ -93,7 +93,7 @@ fi
 
 
 # read the options
-ARGS=`getopt -o "hc:f:m:l:r:" -l "help,conf-file:,ftp:,mount-point:,local-file:,remote-path:" -- "$@"`
+ARGS=`getopt -o "hc:f:s:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 # global variable 
@@ -111,6 +111,17 @@ declare -i flag_local_file=0;
 declare -i flag_remote_path=0;
 
 declare -a _conf_file_;
+
+declare -A _flags_;
+_flags_['domain']=0;
+
+declare -A ssl;
+declare -A ssl_action;
+ssl['flag']=0;
+ssl['action']='';
+ssl['domain']='';
+ssl_action['valid']=0;
+ssl_action['date']=0;
 
 function check_conf_path(){
     # check if the file exist and it is readable
@@ -185,6 +196,21 @@ while true ; do
             shift 2;
         ;;
 
+        -s | --ssl )
+            ssl['flag']=1;
+            ssl['action']=$2;
+            case $2 in
+                valid )
+                    ssl_action['valid']=1;
+                ;;
+
+                date )
+                    ssl_action['date']=1;
+                ;;
+            esac
+            shift 2;
+        ;;
+
         # --mount-point
         -m | --mount-point )
             flag_mount_point=1;
@@ -224,6 +250,12 @@ while true ; do
             flag_remote_path=1;
             _remote_path_="$2";
             shift 2;
+        ;;
+
+        -d | --domain )
+           _flags_['domain']=1;
+           ssl['domain']=$2;
+           shift 2;
         ;;
 
         # last line
@@ -304,3 +336,41 @@ case $_ftp_ in
     ;;
 esac
 
+case ${ssl['action']} in
+    valid )
+        if [[ ${_flags_['domain']} == 0 ]]; then
+            echo "$(colorize 'red' 'ERROR') ...";
+            echo "A domain name is required!.";
+            echo "Use '-d' or '--domain with a given name'.";
+            exit 2;
+        fi
+        command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server');
+        if [[ $? != 0 ]]; then
+            echo "${ssl['domain']} does not have a valid certificate."
+            exit 0;
+        fi
+        echo "$command_output" | sed 's/^\* \+//g';
+    ;;
+
+    date )
+        if [[ ${_flags_['domain']} == 0 ]]; then
+            echo "$(colorize 'red' 'ERROR') ...";
+            echo "A domain name is required!.";
+            echo "Use '-d' or '--domain with a given name'.";
+            exit 2;
+        fi
+        command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server' | grep date);
+        if [[ $? != 0 ]]; then
+            echo "${ssl['domain']} does not have a valid certificate.";
+            exit 0;
+        fi
+        echo "$command_output" | sed 's/^\* \+//g';
+    ;;
+
+    * )
+        echo "$(colorize 'yellow' 'WARNING') ...";
+        echo "Action is not supported";
+        echo "Use '-h' or '--help' to see the available action for ssl.";
+        exit 1;
+    ;;
+esac
