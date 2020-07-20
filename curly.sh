@@ -42,6 +42,7 @@ arguments:
  -m | --mount-point     path to a directory
  -l | --local-file      a single file for uploading over FTP
  -r | --remote-path     an absolute remote path for the FTP account
+ -d | --domain          name of a domain, e.g. example.com
 "
     exit 0;
 }
