@@ -336,41 +336,43 @@ case $_ftp_ in
     ;;
 esac
 
-case ${ssl['action']} in
-    valid )
-        if [[ ${_flags_['domain']} == 0 ]]; then
-            echo "$(colorize 'red' 'ERROR') ...";
-            echo "A domain name is required!.";
-            echo "Use '-d' or '--domain with a given name'.";
-            exit 2;
-        fi
-        command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server');
-        if [[ $? != 0 ]]; then
-            echo "${ssl['domain']} does not have a valid certificate."
-            exit 0;
-        fi
-        echo "$command_output" | sed 's/^\* \+//g';
-    ;;
+if [[ ${ssl['flag']} == 1 ]]; then
+    case ${ssl['action']} in
+        valid )
+            if [[ ${_flags_['domain']} == 0 ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "A domain name is required!.";
+                echo "Use '-d' or '--domain with a given name'.";
+                exit 2;
+            fi
+            command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server');
+            if [[ $? != 0 ]]; then
+                echo "${ssl['domain']} does not have a valid certificate."
+                exit 0;
+            fi
+            echo "$command_output" | sed 's/^\* \+//g';
+        ;;
 
-    date )
-        if [[ ${_flags_['domain']} == 0 ]]; then
-            echo "$(colorize 'red' 'ERROR') ...";
-            echo "A domain name is required!.";
-            echo "Use '-d' or '--domain with a given name'.";
-            exit 2;
-        fi
-        command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server' | grep date);
-        if [[ $? != 0 ]]; then
-            echo "${ssl['domain']} does not have a valid certificate.";
-            exit 0;
-        fi
-        echo "$command_output" | sed 's/^\* \+//g';
-    ;;
+        date )
+            if [[ ${_flags_['domain']} == 0 ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "A domain name is required!.";
+                echo "Use '-d' or '--domain with a given name'.";
+                exit 2;
+            fi
+            command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server' | grep date);
+            if [[ $? != 0 ]]; then
+                echo "${ssl['domain']} does not have a valid certificate.";
+                exit 0;
+            fi
+            echo "$command_output" | sed 's/^\* \+//g';
+        ;;
 
-    * )
-        echo "$(colorize 'yellow' 'WARNING') ...";
-        echo "Action is not supported";
-        echo "Use '-h' or '--help' to see the available action for ssl.";
-        exit 1;
-    ;;
-esac
+        * )
+            echo "$(colorize 'yellow' 'WARNING') ...";
+            echo "Action is not supported";
+            echo "Use '-h' or '--help' to see the available action for ssl.";
+            exit 1;
+        ;;
+    esac
+fi
