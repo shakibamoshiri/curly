@@ -40,7 +40,7 @@ arguments:
                         $(colorize 'cyan' 'status'): print header for the GET request
                         $(colorize 'cyan' 'redirect'): check if redirect id done or not
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
- -c | --connection
+
  -m | --mount-point     path to a directory
  -l | --local-file      a single file for uploading over FTP
  -r | --remote-path     an absolute remote path for the FTP account
