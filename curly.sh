@@ -31,7 +31,7 @@ arguments:
                         $(colorize 'cyan' 'umount'): umount: umount FTP mount point
                         $(colorize 'cyan' 'upload'): upload: upload to a FTP account
                         $(colorize 'cyan' 'download'): download: download from a FTP account
- -s | --ssl         valid / date
+ -s | --ssl         valid / date / cert / name
                         $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
                         $(colorize 'cyan' 'date'): check start and end date of the certificate
                         $(colorize 'cyan' 'cert'): show the certificate
