@@ -34,6 +34,8 @@ arguments:
  -s | --ssl         valid / date
                         $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
                         $(colorize 'cyan' 'date'): check start and end date of the certificate
+                        $(colorize 'cyan' 'cert'): show the certificate
+                        $(colorize 'cyan' 'name'): name of domains the certificate issued for
  -H | --http        status / redirect / gzip
                         $(colorize 'cyan' 'status'): print header for the GET request
                         $(colorize 'cyan' 'redirect'): check if redirect id done or not
@@ -366,6 +368,30 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 exit 0;
             fi
             echo "$command_output" | sed 's/^\* \+//g';
+        ;;
+
+        cert )
+            if [[ ${_flags_['domain']} == 0 ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "A domain name is required!.";
+                echo "Use '-d' or '--domain with a given name'.";
+                exit 2;
+            fi
+            command_output=$(nmap --script ssl-cert -v1  -p 443 ${ssl['domain']} | sed 's/|[ _]//g' | perl -lne '$/=null; /-----BEGIN.*CERTIFICATE-----/sg && print $&');
+            if [[ $? != 0 ]]; then
+                echo "${ssl['domain']} does not have a valid certificate.";
+                exit 0;
+            fi
+            echo "$command_output";
+        ;;
+
+        name )
+            command_output=$(nmap --script ssl-cert -v1  -p 443 ${ssl['domain']} | sed 's/|[ _]//g' | perl -lne '$/=null; /-----BEGIN.*CERTIFICATE-----/sg && print $&');
+            echo "$command_output" | openssl x509  -text -noout  | grep DNS | tr ',' '\n' | sed 's/^ \+DNS://g'
+            if [[ $? != 0 ]]; then
+                echo "${ssl['domain']} does not have a valid certificate.";
+                exit 0;
+            fi
         ;;
 
         * )
