@@ -30,20 +30,22 @@ definition:
  doing things in a 'curl' way ...
 
 arguments:
- -f | --ftp         check / mount / umount / upload / download
+ -f | --ftp         check / mount / umount / upload ...
                         $(colorize 'cyan' 'check'): checking FTP connection
                         $(colorize 'cyan' 'mount'): mount over FTP
                         $(colorize 'cyan' 'umount'): umount: umount FTP mount point
                         $(colorize 'cyan' 'upload'): upload: upload to a FTP account
                         $(colorize 'cyan' 'download'): download: download from a FTP account
- -s | --ssl         valid / date / cert / name
+ -s | --ssl         valid / date / cert / name ...
                         $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
                         $(colorize 'cyan' 'date'): check start and end date of the certificate
                         $(colorize 'cyan' 'cert'): show the certificate
                         $(colorize 'cyan' 'name'): name of domains the certificate issued for
- -H | --http        status / redirect / gzip
-                        $(colorize 'cyan' 'status'): print header for the GET request
+ -H | --http        response /  status / redirect / gzip ...
+                        $(colorize 'cyan' 'response'): print header for the GET request
                         $(colorize 'cyan' 'redirect'): check if redirect id done or not
+                        $(colorize 'cyan' 'status'): print header for the GET request
+                        $(colorize 'cyan' 'ttfb'): check if gzip is enabled or not
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
 
  -h | --help            print this help
@@ -116,7 +118,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:f:s:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:f:s:H:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -141,6 +143,13 @@ declare -A ssl_action;
 ssl['flag']=0;
 ssl['action']='';
 ssl['domain']='';
+
+# variables for HTTP
+declare -A http;
+http['flag']=0;
+http['action']='';
+http['domain']='';
+
 
 ################################################################################
 # parse configuration file and assigns values to variables
@@ -227,6 +236,12 @@ while true ; do
             shift 2;
         ;;
 
+        -H | --http )
+            http['flag']=1;
+            http['action']=$2;
+            shift 2;
+        ;;
+
         # --mount-point
         -m | --mount-point )
             FTP['mount_point']=$2;
@@ -267,6 +282,7 @@ while true ; do
 
         -d | --domain )
            ssl['domain']=$2;
+           http['domain']=$2;
            shift 2;
         ;;
 
@@ -422,6 +438,76 @@ if [[ ${ssl['flag']} == 1 ]]; then
         * )
             echo "$(colorize 'yellow' 'WARNING') ...";
             echo "Action ${ssl['action']} is not supported";
+            echo "Use '-h' or '--help' to see the available action for ssl.";
+            exit 1;
+        ;;
+    esac
+fi
+
+################################################################################
+# check and run http actions
+################################################################################
+if [[ ${http['flag']} == 1 ]]; then
+    if [[ ${http['domain']} == '' ]]; then
+        echo "$(colorize 'red' 'ERROR') ...";
+        echo "A domain name is required!.";
+        echo "Use '-d' or '--domain with a given name'.";
+        exit 2;
+    fi
+
+    case ${http['action']} in
+        res | respon | response )
+            curl -LI ${http['domain']}
+            print_result $? 'http' 'response';
+        ;;
+
+        st | stat | status )
+            curl -sLo /dev/null -w \
+'URL               %{url_effective}
+status            %{http_code}
+remote_ip         %{remote_ip}
+remote_port       %{remote_port}
+num_connects      %{num_connects}
+num_redirects     %{num_redirects}
+scheme            %{scheme}
+http_version      %{http_version}
+ssl_verify_result %{ssl_verify_result}
+' ${http['domain']};
+            print_result $? 'http' 'status';
+        ;;
+
+        red | redir | redirect )
+            curl -LI ${http['domain']} 2>&1 | grep  -e HTTP -e [lL]ocation
+            print_result $? 'http' 'redirect';
+        ;;
+
+        gz | gzip )
+            curl -sLH 'Accept-Encoding: gzip' ${http['domain']} -o /tmp/curl.gz;
+            gzip -l /tmp/curl.gz
+            if [[ $? == 0 ]]; then
+                echo 'gzip is enabled';
+            else
+                echo 'gzip is NOT enabled';
+            fi
+            print_result $? 'http' 'gzip';
+        ;;
+
+        tt | tt | ttfb )
+            curl -sLo /dev/null -w \
+'url_effective       %{url_effective}
+time_namelookupe    %{time_namelookup} | DNS lookup
+time_connect        %{time_connect} | TCP connection
+time_appconnect     %{time_appconnect} | App connection
+time_redirect       %{time_redirect} | Redirection time
+time_starttransfer  %{time_starttransfer} | TTFB
+time_total          %{time_total}
+' ${http['domain']};
+            print_result $? 'http' 'ttfb';
+        ;;
+
+        * )
+            echo "$(colorize 'yellow' 'WARNING') ...";
+            echo "Action ${http['action']} is not supported";
             echo "Use '-h' or '--help' to see the available action for ssl.";
             exit 1;
         ;;
