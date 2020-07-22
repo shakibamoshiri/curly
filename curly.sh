@@ -30,8 +30,6 @@ definition:
  doing things in a 'curl' way ...
 
 arguments:
- -h | --help        print this hel
- -c | --conf-file   path to configuration file
  -f | --ftp         check / mount / umount / upload / download
                         $(colorize 'cyan' 'check'): checking FTP connection
                         $(colorize 'cyan' 'mount'): mount over FTP
@@ -48,11 +46,15 @@ arguments:
                         $(colorize 'cyan' 'redirect'): check if redirect id done or not
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
 
+ -h | --help            print this help
+ -c | --conf-file       path to configuration file
  -m | --mount-point     path to a directory
  -l | --local-file      a single file for uploading over FTP
  -r | --remote-path     an absolute remote path for the FTP account
  -d | --domain          name of a domain, e.g. example.com
-"
+
+Copyright (C) 2020 Shakiba Moshiri
+https://github.com/k-five/curly "
     exit 0;
 }
 
