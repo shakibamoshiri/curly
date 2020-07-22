@@ -124,9 +124,6 @@ _conf_path_="";
 
 declare -a _conf_file_;
 
-declare -A _flags_;
-_flags_['domain']=0;
-
 # variables for FTP
 declare -A FTP;
 FTP['flag']=0;
@@ -142,8 +139,6 @@ declare -A ssl_action;
 ssl['flag']=0;
 ssl['action']='';
 ssl['domain']='';
-ssl_action['valid']=0;
-ssl_action['date']=0;
 
 ################################################################################
 # parse configuration file and assigns values to variables
@@ -222,11 +217,9 @@ while true ; do
             ssl['action']=$2;
             case $2 in
                 valid )
-                    ssl_action['valid']=1;
                 ;;
 
                 date )
-                    ssl_action['date']=1;
                 ;;
             esac
             shift 2;
@@ -271,7 +264,6 @@ while true ; do
         ;;
 
         -d | --domain )
-           _flags_['domain']=1;
            ssl['domain']=$2;
            shift 2;
         ;;
@@ -291,78 +283,80 @@ done
 ################################################################################
 # check and run FTP actions
 ################################################################################
-case ${FTP['action']} in 
-    check )
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']}/;
-        print_result $? 'ftp' 'check';
-    ;;
-    mount )
-        if [[ $FTP{['conf_path']} == '' ]]; then
-            echo "$(colorize 'red' 'ERROR') ...";
-            echo "The configuration file is required with 'upload' action.";
-            echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-            exit 2;
-        elif [[ ${FTP['mount_point']} == '' ]]; then
-            echo "WARNING ...";
-            echo "With 'mount' ftp a 'mount-point' is required.";
-            echo "Use -m or --mount-point with a path.";
-            exit 2;
-        fi
-
-        curlftpfs "${_user_name_}:${_user_pass_}@${_user_domain_}" ${FTP['mount_point']}
-        print_result $? 'ftp' 'mount';
-    ;;
-    umount )
-        if [[ ${FTP['mount_point']} == '' ]]; then
-            echo "WARNING ...";
-            echo "With 'umount' ftp a 'mount-point' is required.";
-            echo "Use -m or --mount-point with a path.";
-            exit 2;
-        fi
-
-        sudo umount ${FTP['mount_point']}
-        print_result $? 'ftp' 'umount';
+if [[ ${FTP['flag']} == 1 ]]; then
+    case ${FTP['action']} in 
+        check )
+            curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']}/;
+            print_result $? 'ftp' 'check';
         ;;
-    upload )
-        if [[ $FTP{['conf_path']} == '' ]]; then
-            echo "$(colorize 'red' 'ERROR') ...";
-            echo "The configuration file is required with 'upload' action.";
-            echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-            exit 2;
-        elif [[ $flag_local_file == 0 ]]; then
+        mount )
+            if [[ $FTP{['conf_path']} == '' ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "The configuration file is required with 'upload' action.";
+                echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                exit 2;
+            elif [[ ${FTP['mount_point']} == '' ]]; then
+                echo "WARNING ...";
+                echo "With 'mount' ftp a 'mount-point' is required.";
+                echo "Use -m or --mount-point with a path.";
+                exit 2;
+            fi
+
+            curlftpfs "${_user_name_}:${_user_pass_}@${_user_domain_}" ${FTP['mount_point']}
+            print_result $? 'ftp' 'mount';
+        ;;
+        umount )
+            if [[ ${FTP['mount_point']} == '' ]]; then
+                echo "WARNING ...";
+                echo "With 'umount' ftp a 'mount-point' is required.";
+                echo "Use -m or --mount-point with a path.";
+                exit 2;
+            fi
+
+            sudo umount ${FTP['mount_point']}
+            print_result $? 'ftp' 'umount';
+            ;;
+        upload )
+            if [[ $FTP{['conf_path']} == '' ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "The configuration file is required with 'upload' action.";
+                echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                exit 2;
+            elif [[ $flag_local_file == 0 ]]; then
+                echo "$(colorize 'yellow' 'WARNING') ...";
+                echo "A file is required with 'upload' action";
+                echo "Use '-l' or '--local-file' and give it a single file name";
+                exit 2;
+            fi
+
+            curl  --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']}/ -T "${FTP['local_file']}";
+            print_result $? 'ftp' 'upload';
+        ;;
+        download )
+            if [[ $FTP{['conf_path']} == '' ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "The configuration file is required with 'upload' action.";
+                echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+                exit 2;
+            elif [[ ${FTP['remote_path']} == '' ]]; then
+                echo "$(colorize 'red' 'ERROR') ...";
+                echo "Absolute path to the remote file is required!.";
+                echo "Use '-r' or '--remote-path with a given file name.'.";
+                exit 2;
+            fi
+
+            curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']};
+            print_result $? 'ftp' 'download';
+        ;;
+
+        * )
             echo "$(colorize 'yellow' 'WARNING') ...";
-            echo "A file is required with 'upload' action";
-            echo "Use '-l' or '--local-file' and give it a single file name";
-            exit 2;
-        fi
-
-        curl  --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']}/ -T "${FTP['local_file']}";
-        print_result $? 'ftp' 'upload';
-    ;;
-    download )
-        if [[ $FTP{['conf_path']} == '' ]]; then
-            echo "$(colorize 'red' 'ERROR') ...";
-            echo "The configuration file is required with 'upload' action.";
-            echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
-            exit 2;
-        elif [[ ${FTP['remote_path']} == '' ]]; then
-            echo "$(colorize 'red' 'ERROR') ...";
-            echo "Absolute path to the remote file is required!.";
-            echo "Use '-r' or '--remote-path with a given file name.'.";
-            exit 2;
-        fi
-
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']};
-        print_result $? 'ftp' 'download';
-    ;;
-
-    * )
-        echo "$(colorize 'yellow' 'WARNING') ...";
-        echo "Action ${FTP['action']} is not supported";
-        echo "Use '-h' or '--help' to see the available action for ftp.";
-        exit 1;
-    ;;
-esac
+            echo "Action ${FTP['action']} is not supported";
+            echo "Use '-h' or '--help' to see the available action for ftp.";
+            exit 1;
+        ;;
+    esac
+fi
 
 ################################################################################
 # check and run SSL actions
@@ -370,7 +364,7 @@ esac
 if [[ ${ssl['flag']} == 1 ]]; then
     case ${ssl['action']} in
         valid )
-            if [[ ${_flags_['domain']} == 0 ]]; then
+            if [[ ${ssl['domain']} == '' ]]; then
                 echo "$(colorize 'red' 'ERROR') ...";
                 echo "A domain name is required!.";
                 echo "Use '-d' or '--domain with a given name'.";
@@ -385,7 +379,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
         ;;
 
         date )
-            if [[ ${_flags_['domain']} == 0 ]]; then
+            if [[ ${ssl['domain']} == '' ]]; then
                 echo "$(colorize 'red' 'ERROR') ...";
                 echo "A domain name is required!.";
                 echo "Use '-d' or '--domain with a given name'.";
@@ -400,7 +394,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
         ;;
 
         cert )
-            if [[ ${_flags_['domain']} == 0 ]]; then
+            if [[ ${ssl['domain']} == '' ]]; then
                 echo "$(colorize 'red' 'ERROR') ...";
                 echo "A domain name is required!.";
                 echo "Use '-d' or '--domain with a given name'.";
@@ -425,7 +419,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
 
         * )
             echo "$(colorize 'yellow' 'WARNING') ...";
-            echo "Action is not supported";
+            echo "Action ${ssl['action']} is not supported";
             echo "Use '-h' or '--help' to see the available action for ssl.";
             exit 1;
         ;;
