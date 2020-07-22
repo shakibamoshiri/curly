@@ -1,6 +1,11 @@
 #!/bin/bash
+###
+# Author : Shakiba Moshiri
+###
 
-# Associate Array
+################################################################################
+# an associative array for storing color and a function for colorizing
+################################################################################
 declare -A _colors_;
 _colors_[ 'red' ]='\x1b[1;31m';
 _colors_[ 'green' ]='\x1b[1;32m';
@@ -16,7 +21,9 @@ function colorize(){
     fi
 }
 
+################################################################################
 # __help function
+################################################################################
 function __help(){
     echo -e  " $0 help ...\n
 definition:
@@ -49,7 +56,9 @@ arguments:
     exit 0;
 }
 
-# __debug module
+################################################################################
+# __debug function
+################################################################################
 function __debug(){
     echo '######### DEBUG ##########';
     echo "conf-file $_conf_path_";
@@ -60,6 +69,9 @@ function __debug(){
     echo -e "1. $_user_domain_ \n2. $_user_name_ \n3. $_user_pass_";
 }
 
+################################################################################
+# print the result of each action
+################################################################################
 function print_result(){
     echo -e "\noption: $2";
     echo "action:" $(colorize 'cyan'  $3);
@@ -70,6 +82,12 @@ function print_result(){
     fi
 }
 
+################################################################################
+# check for required commands
+# curl, curlftpfs
+# grep, sed
+# nmap, perl
+################################################################################
 _curl_path_=$(which curl);
 _curlftpfs_path_=$(which curlftpfs);
 
@@ -87,18 +105,23 @@ if ! [[ -x $_curlftpfs_path_ ]]; then
     exit 1;
 fi
 
-
-
+################################################################################
+# if there is no flags, prints help
+################################################################################
 if [[ $1 == "" ]]; then
     __help;
 fi
 
 
-# read the options
+################################################################################
+# main flags, both longs and shorts
+################################################################################
 ARGS=`getopt -o "hc:f:s:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
+################################################################################
 # global variable 
+################################################################################
 _conf_path_="";
 _ftp_="";
 _mount_point_="";
@@ -125,6 +148,9 @@ ssl['domain']='';
 ssl_action['valid']=0;
 ssl_action['date']=0;
 
+################################################################################
+# parse configuration file and assigns values to variables
+################################################################################
 function check_conf_path(){
     # check if the file exist and it is readable
     if ! [[ -r $_conf_path_ ]]; then
@@ -155,7 +181,9 @@ function check_conf_path(){
 
 }
 
+################################################################################
 # extract options and their arguments into variables.
+################################################################################
 while true ; do
     case "$1" in
         -h | --help )
@@ -272,6 +300,9 @@ done
 
 
 
+################################################################################
+# check and run FTP actions
+################################################################################
 case $_ftp_ in 
     check )
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_/;
@@ -338,6 +369,9 @@ case $_ftp_ in
     ;;
 esac
 
+################################################################################
+# check and run SSL actions
+################################################################################
 if [[ ${ssl['flag']} == 1 ]]; then
     case ${ssl['action']} in
         valid )
