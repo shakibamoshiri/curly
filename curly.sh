@@ -88,22 +88,20 @@ function print_result(){
 # grep, sed
 # nmap, perl
 ################################################################################
-_curl_path_=$(which curl);
-_curlftpfs_path_=$(which curlftpfs);
+declare -A _cmds_;
+_cmds_['curl']=$(which curl);
+_cmds_['curlftpfs']=$(which curlftpfs);
+_cmds_['perl']=$(which perl);
+_cmds_['nmap']=$(which nmap);
 
-if ! [[ -x $_curl_path_ ]]; then
-    echo "ERROR ...";
-    echo "the 'curl' program is required";
-    echo "please install it";
-    exit 1;
-fi
-
-if ! [[ -x $_curlftpfs_path_ ]]; then
-    echo "ERROR ...";
-    echo "the 'curlftpfs' program is required";
-    echo "please install it";
-    exit 1;
-fi
+for cmd in ${_cmds_[@]}; do
+    if ! [[ -x $cmd ]]; then
+        echo "ERROR ...";
+        echo "the $cmd is required";
+        echo "please install it";
+        exit 1;
+    fi
+done
 
 ################################################################################
 # if there is no flags, prints help
