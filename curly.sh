@@ -138,6 +138,16 @@ declare -a _conf_file_;
 declare -A _flags_;
 _flags_['domain']=0;
 
+# variables for FTP
+declare -A FTP;
+FTP['flag']=0;
+FTP['action']='';
+FTP['conf_path']='';
+FTP['local_file']='';
+FTP['mount_point']='';
+FTP['remote_path']='';
+
+# variables for SSL
 declare -A ssl;
 declare -A ssl_action;
 ssl['flag']=0;
@@ -151,17 +161,17 @@ ssl_action['date']=0;
 ################################################################################
 function check_conf_path(){
     # check if the file exist and it is readable
-    if ! [[ -r $_conf_path_ ]]; then
+    if ! [[ -r ${FTP['conf_path']} ]]; then
         echo "$(colorize 'red' 'ERROR' ) ...";
         echo "file: $_conf_path_ does NOT exist!";
         exit 1;
-    elif ! [[ -s $_conf_path_ ]]; then
+    elif ! [[ -s ${FTP['conf_path']} ]]; then
         echo "$(colorize 'yellow' 'WARNING' ) ...";
         echo "file: $_conf_path_ is empty!";
         exit 0;
     fi
 
-    _conf_file_=($(cat $_conf_path_));
+    _conf_file_=($(cat ${FTP['conf_path']}));
     # check if length of the array is 3
     if [[ ${#_conf_file_[@]} != 3 ]]; then
         echo "$(colorize 'yellow' 'WARNING') ...";
@@ -190,10 +200,8 @@ while true ; do
         
         # configure file
         -c | --conf-file )
-            flag_conf_path=1;
-            _conf_path_=$2;
+            FTP['conf_path']=$2;
             check_conf_path
-            
             shift 2;
         ;;
         
@@ -307,7 +315,7 @@ case $_ftp_ in
         print_result $? 'ftp' 'check';
     ;;
     mount )
-        if [[ $flag_conf_path == 0 ]]; then
+        if [[ $FTP{['conf_path']} == '' ]]; then
             echo "$(colorize 'red' 'ERROR') ...";
             echo "The configuration file is required with 'upload' action.";
             echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
@@ -334,7 +342,7 @@ case $_ftp_ in
         print_result $? 'ftp' 'umount';
         ;;
     upload )
-        if [[ $flag_conf_path == 0 ]]; then
+        if [[ $FTP{['conf_path']} == '' ]]; then
             echo "$(colorize 'red' 'ERROR') ...";
             echo "The configuration file is required with 'upload' action.";
             echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
@@ -350,7 +358,7 @@ case $_ftp_ in
         print_result $? 'ftp' 'upload';
     ;;
     download )
-        if [[ $flag_conf_path == 0 ]]; then
+        if [[ $FTP{['conf_path']} == '' ]]; then
             echo "$(colorize 'red' 'ERROR') ...";
             echo "The configuration file is required with 'upload' action.";
             echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
