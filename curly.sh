@@ -41,11 +41,11 @@ arguments:
                         $(colorize 'cyan' 'date'): check start and end date of the certificate
                         $(colorize 'cyan' 'cert'): show the certificate
                         $(colorize 'cyan' 'name'): name of domains the certificate issued for
- -H | --http        response /  status / redirect / gzip ...
-                        $(colorize 'cyan' 'response'): print header for the GET request
+ -H | --http        response /  status / redirect / ttfb ...
+                        $(colorize 'cyan' 'response'): print response header of server
                         $(colorize 'cyan' 'redirect'): check if redirect id done or not
-                        $(colorize 'cyan' 'status'): print header for the GET request
-                        $(colorize 'cyan' 'ttfb'): check if gzip is enabled or not
+                        $(colorize 'cyan' 'status'): print status for the GET request
+                        $(colorize 'cyan' 'ttfb'): print statistics about Time to First Byte
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
 
  -h | --help            print this help
