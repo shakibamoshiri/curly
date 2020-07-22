@@ -73,12 +73,12 @@ function __debug(){
 # print the result of each action
 ################################################################################
 function print_result(){
-    echo -e "\noption: $2";
-    echo "action:" $(colorize 'cyan'  $3);
+    echo -e "\noption: $2" >&2;
+    echo "action:" $(colorize 'cyan'  $3) >&2;
     if [[ $1 == 0 ]]; then
-        echo "status:" $(colorize 'green' 'OK');
+        echo "status:" $(colorize 'green' 'OK') >&2;
     else
-        echo "status:" $(colorize 'red' 'ERROR');
+        echo "status:" $(colorize 'red' 'ERROR') >&2;
     fi
 }
 
@@ -121,13 +121,6 @@ eval set -- "$ARGS"
 # global variable 
 ################################################################################
 _conf_path_="";
-_local_file_="";
-_remote_path_="";
-
-# setting flags for each option we have
-declare -i flag_conf_path=0;
-declare -i flag_local_file=0;
-declare -i flag_remote_path=0;
 
 declare -a _conf_file_;
 
@@ -267,15 +260,13 @@ while true ; do
 
         ## -l or --local-file
         -l | --local-file )
-            flag_local_file=1;
-            _local_file_=$2;
+            FTP['local_file']=$2
             shift 2;
         ;;
 
         #
         -r | --remote-path )
-            flag_remote_path=1;
-            _remote_path_="$2";
+            FTP['remote_path']=$2;
             shift 2;
         ;;
 
@@ -302,7 +293,7 @@ done
 ################################################################################
 case ${FTP['action']} in 
     check )
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_/;
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']}/;
         print_result $? 'ftp' 'check';
     ;;
     mount )
@@ -345,7 +336,7 @@ case ${FTP['action']} in
             exit 2;
         fi
 
-        curl  --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_ -T "${_local_file_}";
+        curl  --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']}/ -T "${FTP['local_file']}";
         print_result $? 'ftp' 'upload';
     ;;
     download )
@@ -354,21 +345,21 @@ case ${FTP['action']} in
             echo "The configuration file is required with 'upload' action.";
             echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
             exit 2;
-        elif [[ $flag_remote_path == 0 ]]; then
+        elif [[ ${FTP['remote_path']} == '' ]]; then
             echo "$(colorize 'red' 'ERROR') ...";
             echo "Absolute path to the remote file is required!.";
             echo "Use '-r' or '--remote-path with a given file name.'.";
             exit 2;
         fi
 
-        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_;
+        curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/${FTP['remote_path']};
         print_result $? 'ftp' 'download';
     ;;
 
     * )
         echo "$(colorize 'yellow' 'WARNING') ...";
         echo "Action ${FTP['action']} is not supported";
-        echo "Use '-h' or '--help' to see the available action for ssl.";
+        echo "Use '-h' or '--help' to see the available action for ftp.";
         exit 1;
     ;;
 esac
