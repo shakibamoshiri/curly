@@ -62,8 +62,8 @@ arguments:
 function __debug(){
     echo '######### DEBUG ##########';
     echo "conf-file $_conf_path_";
-    echo "ftp $_ftp_";
-    echo "mount-point $_mount_point_";
+    echo "ftp ${FTP['action']}";
+    echo "mount-point ${FTP['mount_point']}";
     echo
     echo
     echo -e "1. $_user_domain_ \n2. $_user_name_ \n3. $_user_pass_";
@@ -121,15 +121,11 @@ eval set -- "$ARGS"
 # global variable 
 ################################################################################
 _conf_path_="";
-_ftp_="";
-_mount_point_="";
 _local_file_="";
 _remote_path_="";
 
 # setting flags for each option we have
 declare -i flag_conf_path=0;
-declare -i flag_ftp=0;
-declare -i flag_mount_point=0;
 declare -i flag_local_file=0;
 declare -i flag_remote_path=0;
 
@@ -207,8 +203,8 @@ while true ; do
         
         # --ftp
         -f | --ftp )
-            flag_ftp=1;
-            _ftp_=$2;
+            FTP['flag']=1;
+            FTP['action']=$2;
             case "$2" in
                 check )
                 ;;
@@ -223,10 +219,6 @@ while true ; do
                 ;;
 
                 download )
-                ;;
-
-                * )
-                    echo "$@ is not a valid ftp";
                 ;;
             esac
             shift 2;
@@ -249,13 +241,12 @@ while true ; do
 
         # --mount-point
         -m | --mount-point )
-            flag_mount_point=1;
-            _mount_point_=$2;
+            FTP['mount_point']=$2;
 
             # check if the directory exist
-            if ! [[ -d $_mount_point_ ]]; then
+            if ! [[ -d ${FTP['mount_point']} ]]; then
                 echo "WARNING ...";
-                echo "$_mount_point_ directory does NOT exist";
+                echo  "${FTP['mount_point']} directory does NOT exist";
                 read -p "Do you want to create it? ( yes | no ) " _mount_point_creation_;
                 case $_mount_point_creation_ in
                     y | yes )
@@ -309,7 +300,7 @@ done
 ################################################################################
 # check and run FTP actions
 ################################################################################
-case $_ftp_ in 
+case ${FTP['action']} in 
     check )
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_/;
         print_result $? 'ftp' 'check';
@@ -320,25 +311,25 @@ case $_ftp_ in
             echo "The configuration file is required with 'upload' action.";
             echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
             exit 2;
-        elif [[ $flag_mount_point == 0 ]]; then
+        elif [[ ${FTP['mount_point']} == '' ]]; then
             echo "WARNING ...";
             echo "With 'mount' ftp a 'mount-point' is required.";
             echo "Use -m or --mount-point with a path.";
             exit 2;
         fi
 
-        curlftpfs "${_user_name_}:${_user_pass_}@${_user_domain_}" $_mount_point_
+        curlftpfs "${_user_name_}:${_user_pass_}@${_user_domain_}" ${FTP['mount_point']}
         print_result $? 'ftp' 'mount';
     ;;
     umount )
-        if [[ $flag_mount_point == 0 ]]; then
+        if [[ ${FTP['mount_point']} == '' ]]; then
             echo "WARNING ...";
             echo "With 'umount' ftp a 'mount-point' is required.";
             echo "Use -m or --mount-point with a path.";
             exit 2;
         fi
 
-        sudo umount $_mount_point_;
+        sudo umount ${FTP['mount_point']}
         print_result $? 'ftp' 'umount';
         ;;
     upload )
@@ -372,6 +363,13 @@ case $_ftp_ in
 
         curl --insecure --user "${_user_name_}:${_user_pass_}" ftp://${_user_domain_}/$_remote_path_;
         print_result $? 'ftp' 'download';
+    ;;
+
+    * )
+        echo "$(colorize 'yellow' 'WARNING') ...";
+        echo "Action ${FTP['action']} is not supported";
+        echo "Use '-h' or '--help' to see the available action for ssl.";
+        exit 1;
     ;;
 esac
 
