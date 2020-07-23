@@ -248,7 +248,7 @@ while true ; do
 
             # check if the directory exist
             if ! [[ -d ${FTP['mount_point']} ]]; then
-                echo "WARNING ...";
+                echo "$(colorize 'yellow' 'WARNING' ) ...";
                 echo  "${FTP['mount_point']} directory does NOT exist";
                 read -p "Do you want to create it? ( yes | no ) " _mount_point_creation_;
                 case $_mount_point_creation_ in
@@ -317,7 +317,7 @@ if [[ ${FTP['flag']} == 1 ]]; then
 
         mount )
            if [[ ${FTP['mount_point']} == '' ]]; then
-                echo "WARNING ...";
+                echo "$(colorize 'yellow' 'WARNING' ) ...";
                 echo "With 'mount' ftp a 'mount-point' is required.";
                 echo "Use -m or --mount-point with a path.";
                 exit 2;
@@ -329,7 +329,7 @@ if [[ ${FTP['flag']} == 1 ]]; then
 
         umount )
             if [[ ${FTP['mount_point']} == '' ]]; then
-                echo "WARNING ...";
+                echo "$(colorize 'yellow' 'WARNING' ) ...";
                 echo "With 'umount' ftp a 'mount-point' is required.";
                 echo "Use -m or --mount-point with a path.";
                 exit 2;
