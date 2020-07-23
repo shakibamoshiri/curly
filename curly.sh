@@ -380,14 +380,15 @@ fi
 # check and run SSL actions
 ################################################################################
 if [[ ${ssl['flag']} == 1 ]]; then
+    if [[ ${ssl['domain']} == '' ]]; then
+        echo "$(colorize 'red' 'ERROR') ...";
+        echo "A domain name is required!.";
+        echo "Use '-d' or '--domain' with a given name.";
+        exit 2;
+    fi
+
     case ${ssl['action']} in
         valid )
-            if [[ ${ssl['domain']} == '' ]]; then
-                echo "$(colorize 'red' 'ERROR') ...";
-                echo "A domain name is required!.";
-                echo "Use '-d' or '--domain with a given name'.";
-                exit 2;
-            fi
             command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server');
             if [[ $? != 0 ]]; then
                 echo "${ssl['domain']} does not have a valid certificate."
@@ -397,12 +398,6 @@ if [[ ${ssl['flag']} == 1 ]]; then
         ;;
 
         date )
-            if [[ ${ssl['domain']} == '' ]]; then
-                echo "$(colorize 'red' 'ERROR') ...";
-                echo "A domain name is required!.";
-                echo "Use '-d' or '--domain with a given name'.";
-                exit 2;
-            fi
             command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server' | grep date);
             if [[ $? != 0 ]]; then
                 echo "${ssl['domain']} does not have a valid certificate.";
@@ -412,12 +407,6 @@ if [[ ${ssl['flag']} == 1 ]]; then
         ;;
 
         cert )
-            if [[ ${ssl['domain']} == '' ]]; then
-                echo "$(colorize 'red' 'ERROR') ...";
-                echo "A domain name is required!.";
-                echo "Use '-d' or '--domain with a given name'.";
-                exit 2;
-            fi
             command_output=$(nmap --script ssl-cert -v1  -p 443 ${ssl['domain']} | sed 's/|[ _]//g' | perl -lne '$/=null; /-----BEGIN.*CERTIFICATE-----/sg && print $&');
             if [[ $? != 0 ]]; then
                 echo "${ssl['domain']} does not have a valid certificate.";
