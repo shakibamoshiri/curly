@@ -400,7 +400,26 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 echo "${ssl['domain']} does not have a valid certificate.";
                 exit 0;
             fi
-            echo "$command_output" | sed 's/^\* \+//g';
+            echo "$command_output" | sed 's/^\* \+//g' | sed 's/start date:/start date: /'
+
+            ssl_date=$(echo "$command_output" | sed 's/^[^A-Z]\+ //g');
+            ssl_start=$(echo "$ssl_date" | head -n 1);
+            ssl_end=$(echo "$ssl_date" | tail -n -1);
+
+            ssl_start_sec=$(date -u --date="$ssl_start" "+%s");
+            ssl_end_sec=$(date -u --date="$ssl_end" "+%s");
+
+            today_sec=$(date "+%s");
+            one_day=$(( 24 * 60 * 60 ));
+
+            days_passed=$(( $(( $today_sec - $ssl_start_sec  )) / $one_day ));
+            days_left=$(( $(( $ssl_end_sec -  $today_sec  )) / $one_day ));
+            days_total=$(( $days_passed + $days_left ));
+
+            echo "days passed: $days_passed";
+            echo "days left:   $days_left";
+            echo "days total:  $days_total";
+
             print_result $? 'ssl' 'date';
         ;;
 
