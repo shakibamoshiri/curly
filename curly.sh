@@ -395,6 +395,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 exit 0;
             fi
             echo "$command_output" | sed 's/^\* \+//g';
+            print_result $? 'ssl' 'action';
         ;;
 
         date )
@@ -404,6 +405,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 exit 0;
             fi
             echo "$command_output" | sed 's/^\* \+//g';
+            print_result $? 'ssl' 'date';
         ;;
 
         cert )
@@ -413,6 +415,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 exit 0;
             fi
             echo "$command_output";
+            print_result $? 'ssl' 'cert';
         ;;
 
         name )
@@ -422,6 +425,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 echo "${ssl['domain']} does not have a valid certificate.";
                 exit 0;
             fi
+            print_result $? 'ssl' 'name';
         ;;
 
         * )
