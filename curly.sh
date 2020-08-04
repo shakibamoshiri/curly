@@ -53,6 +53,7 @@ arguments:
                         $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
                         $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
     | --dns-server      a custom DNS server, default is: 1.1.1.1
+                        or it can be a file containing some DNS servers ( IPs | names )
 
  -h | --help            print this help
  -c | --conf-file       path to configuration file
@@ -559,7 +560,19 @@ if [[ ${dns['flag']} == 1 ]]; then
         ;;
 
         pub | public )
-            dig ${dns['domain']} @${dns['server']};
+            # if it is a file
+            if [[ -r ${dns['server']} ]]; then
+                if ! [[ -s ${dns['server']} ]]; then
+                    echo "$(colorize 'yellow' 'WARNING' ) ...";
+                    echo "file: ${dns['server']} is empty!";
+                    echo 'falling back to default: 1.1.1.1';
+                    exit 2;
+                fi
+                xargs -I xxx dig ${dns['domain']} ANY @xxx < ${dns['server']};
+            # if it is NOT a file
+            else
+                dig ${dns['domain']} A @${dns['server']};
+            fi
         ;;
 
         tra | trace )
