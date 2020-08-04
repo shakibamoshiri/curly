@@ -48,7 +48,7 @@ arguments:
                         $(colorize 'cyan' 'ttfb'): print statistics about Time to First Byte
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
                         
- -D | --dns             root / public ...
+ -D | --dns             some DNS actions ...
                         $(colorize 'cyan' 'root'): check on root DNS servers
                         $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
                         $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
