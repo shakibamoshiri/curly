@@ -30,30 +30,32 @@ definition:
  doing things in a 'curl' way ...
 
 arguments:
- -f | --ftp         check / mount / umount / upload ...
-                        $(colorize 'cyan' 'check'): checking FTP connection
-                        $(colorize 'cyan' 'mount'): mount over FTP
-                        $(colorize 'cyan' 'umount'): umount: umount FTP mount point
-                        $(colorize 'cyan' 'upload'): upload: upload to a FTP account
-                        $(colorize 'cyan' 'download'): download: download from a FTP account
- -s | --ssl         valid / date / cert / name ...
-                        $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
-                        $(colorize 'cyan' 'date'): check start and end date of the certificate
-                        $(colorize 'cyan' 'cert'): show the certificate
-                        $(colorize 'cyan' 'name'): name of domains the certificate issued for
- -H | --http        response /  status / redirect / ttfb ...
-                        $(colorize 'cyan' 'response'): print response header of server
-                        $(colorize 'cyan' 'redirect'): check if redirect id done or not
-                        $(colorize 'cyan' 'status'): print status for the GET request
-                        $(colorize 'cyan' 'ttfb'): print statistics about Time to First Byte
-                        $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
+ -f | --ftp             some FTP actions ...
+    |                   $(colorize 'cyan' 'check'): checking FTP connection
+    |                   $(colorize 'cyan' 'mount'): mount over FTP
+    |                   $(colorize 'cyan' 'umount'): umount: umount FTP mount point
+    |                   $(colorize 'cyan' 'upload'): upload: upload to a FTP account
+    |                   $(colorize 'cyan' 'download'): download: download from a FTP account
+
+ -s | --ssl             some SSL actions ...
+    |                   $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
+    |                   $(colorize 'cyan' 'date'): check start and end date of the certificate
+    |                   $(colorize 'cyan' 'cert'): show the certificate
+    |                   $(colorize 'cyan' 'name'): name of domains the certificate issued for
+
+ -H | --http            some HTTP actions ....
+    |                   $(colorize 'cyan' 'response'): print response header of server
+    |                   $(colorize 'cyan' 'redirect'): check if redirect id done or not
+    |                   $(colorize 'cyan' 'status'): print status for the GET request
+    |                   $(colorize 'cyan' 'ttfb'): print statistics about Time to First Byte
+    |                   $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
                         
  -D | --dns             some DNS actions ...
-                        $(colorize 'cyan' 'root'): check on root DNS servers
-                        $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
-                        $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
+    |                   $(colorize 'cyan' 'root'): check on root DNS servers
+    |                   $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
+    |                   $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
     | --dns-server      a custom DNS server, default is: 1.1.1.1
-                        or a file containing some DNS servers ( IPs | names )
+    |                   or a file containing some DNS servers ( IPs | names )
 
  -h | --help            print this help
  -c | --conf-file       path to configuration file
