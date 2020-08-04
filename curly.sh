@@ -47,6 +47,12 @@ arguments:
                         $(colorize 'cyan' 'status'): print status for the GET request
                         $(colorize 'cyan' 'ttfb'): print statistics about Time to First Byte
                         $(colorize 'cyan' 'gzip'): check if gzip is enabled or not
+                        
+ -D | --dns             root / public ...
+                        $(colorize 'cyan' 'root'): check on root DNS servers
+                        $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
+                        $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
+    | --dns-server      a custom DNS server, default is: 1.1.1.1
 
  -h | --help            print this help
  -c | --conf-file       path to configuration file
@@ -118,7 +124,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:f:s:H:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:f:s:H:D:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,dns:,dns-server:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -149,6 +155,12 @@ declare -A http;
 http['flag']=0;
 http['action']='';
 http['domain']='';
+
+declare -A dns;
+dns['flag']=0;
+dns['action']='';
+dns['domain']='';
+dns['server']='1.1.1.1';
 
 
 ################################################################################
@@ -242,6 +254,16 @@ while true ; do
             shift 2;
         ;;
 
+        -D | --dns )
+            dns['flag']=1;
+            dns['action']=$2;
+            shift 2;
+        ;;
+        --dns-server )
+            dns['server']=$2;
+            shift 2;
+        ;;
+
         # --mount-point
         -m | --mount-point )
             FTP['mount_point']=$2;
@@ -283,6 +305,7 @@ while true ; do
         -d | --domain )
            ssl['domain']=$2;
            http['domain']=$2;
+           dns['domain']=$2;
            shift 2;
         ;;
 
@@ -520,4 +543,36 @@ time_total          %{time_total}
             exit 1;
         ;;
     esac
+fi
+
+if [[ ${dns['flag']} == 1 ]]; then
+    if [[ ${dns['domain']} == '' ]]; then
+        echo "$(colorize 'red' 'ERROR') ...";
+        echo "A domain name is required!.";
+        echo "Use '-d' or '--domain with a given name'.";
+        exit 2;
+    fi
+
+    case ${dns['action']} in
+        ro | root )
+            echo ${dns['domain']} | perl -lne '/(?<=\.).*?$/ && print $&' | xargs -I xxx whois xxx | grep nserver | awk '{print $2}' | xargs -I xxx dig ANY ${dns['domain']}  @xxx;
+        ;;
+
+        pub | public )
+            dig ${dns['domain']} @${dns['server']};
+        ;;
+
+        tra | trace )
+            dig +trace ${dns['domain']} @${dns['server']};
+        ;;
+
+        * )
+            echo "$(colorize 'yellow' 'WARNING') ...";
+            echo "Action ${dns['action']} is not supported";
+            echo "Use '-h' or '--help' to see the available action for dns.";
+            exit 1;
+        ;;
+
+    esac
+    
 fi
