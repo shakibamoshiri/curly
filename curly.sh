@@ -53,7 +53,7 @@ arguments:
                         $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
                         $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
     | --dns-server      a custom DNS server, default is: 1.1.1.1
-                        or it can be a file containing some DNS servers ( IPs | names )
+                        or a file containing some DNS servers ( IPs | names )
 
  -h | --help            print this help
  -c | --conf-file       path to configuration file
