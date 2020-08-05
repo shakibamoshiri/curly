@@ -417,7 +417,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 exit 0;
             fi
             echo "$command_output" | sed 's/^\* \+//g';
-            print_result $? 'ssl' 'action';
+            print_result $? 'ssl' 'valid';
         ;;
 
         date )
