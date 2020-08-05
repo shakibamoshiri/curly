@@ -689,9 +689,6 @@ Date: '"$(date)"'
 
 '"${email['body']}"' ';
 
-            echo "$email_content";
-            exit;
-
             echo "$email_content" | curl -s \
                 --url "smtp://${email['smtp']}:${email['port']}" \
                 --user "${email['user']}:${email['pass']}" \
