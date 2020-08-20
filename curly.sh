@@ -57,6 +57,11 @@ arguments:
     | --dns-server      a custom DNS server, default is: 1.1.1.1
     |                   or a file containing some DNS servers ( IPs | names )
 
+ -E | --email           some DNS actions ...
+    |                   $(colorize 'cyan' 'send'): send an email
+    | --email-conf      configuration file for sending an email
+    | --email-body      body (= contents) of the email that is send
+
  -h | --help            print this help
  -c | --conf-file       path to configuration file
  -m | --mount-point     path to a directory
@@ -127,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:f:s:H:D:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,dns:,dns-server:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:f:s:H:D:E:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -165,6 +170,16 @@ dns['action']='';
 dns['domain']='';
 dns['server']='1.1.1.1';
 
+declare -A email;
+email['flag']=0;
+email['conf']='';
+email['body']='';
+email['user']='';
+email['pass']='';
+email['smtp']='';
+email['port']='';
+email['rcpt']='';
+
 
 ################################################################################
 # parse configuration file and assigns values to variables
@@ -197,6 +212,36 @@ function check_conf_path(){
     _user_name_=${_conf_file_[1]};
     _user_pass_=${_conf_file_[2]};
 
+}
+
+################################################################################
+# reading configuration for an email
+################################################################################
+function email_read_conf(){
+    if ! [[ -r ${email['conf']} ]]; then
+        echo "$(colorize 'red' 'ERROR' ) ...";
+        echo "file: ${email['conf']}  does NOT exist!";
+        exit 1;
+    elif ! [[ -s ${email['conf']} ]]; then
+        echo "$(colorize 'yellow' 'WARNING' ) ...";
+        echo "file: ${email['conf']} is empty!";
+        exit 0;
+    fi
+
+    temp_var=($(cat ${email['conf']}));
+    # check if length of the array is 3
+    if [[ ${#temp_var[@]} != 5 ]]; then
+        echo "$(colorize 'yellow' 'WARNING') ...";
+        echo "conf-file format is NOT valid or some lines are missed!";
+        echo -e "\nRight format ...";
+        exit 2;
+    fi
+    
+    email['user']=${temp_var[0]};
+    email['pass']=${temp_var[1]};
+    email['smtp']=${temp_var[2]};
+    email['port']=${temp_var[3]};
+    email['rcpt']=${temp_var[4]};
 }
 
 ################################################################################
@@ -264,6 +309,23 @@ while true ; do
         ;;
         --dns-server )
             dns['server']=$2;
+            shift 2;
+        ;;
+
+        -E | --email )
+            email['flag']=1;
+            email['action']=$2;
+            shift 2;
+        ;;
+
+        --email-conf )
+            email['conf']=$2;
+            email_read_conf;
+            shift 2;
+        ;;
+
+        --email-body )
+            email['body']=$2;
             shift 2;
         ;;
 
@@ -590,4 +652,51 @@ if [[ ${dns['flag']} == 1 ]]; then
 
     esac
     
+fi
+
+if [[ ${email['flag']} == 1 ]]; then
+    if [[ ${email['conf']} == '' ]]; then
+        echo "$(colorize 'red' 'ERROR') ...";
+        echo "A configuration file is required for sending an email.";
+        echo "Use '--email-conf' and provide it file name";
+        exit 2;
+    fi
+
+    if [[ ${email['body']} == '' ]]; then
+        echo "$(colorize 'yellow' 'WARNING') ...";
+        echo 'body of the email is not provided!';
+        echo "'Hi there!' will be used a fall back";
+        email['body']='Hi there!';
+    else
+        if [[ -r ${email['body']} ]]; then
+            if ! [[ -s ${email['body']} ]]; then
+                echo "$(colorize 'yellow' 'WARNING' ) ...";
+                echo "file: ${email['body']} is empty!";
+                echo "'Hi there!' will be used a fall back";
+                email['body']='Hi there!';
+            else
+                email['body']=$(cat ${email['body']});
+            fi
+        fi
+    fi
+
+    case ${email['action']} in
+        send )
+email_content='From: "Curly Script by Shakiba Moshiri" <'"${email['user']}"'>
+To: "Gmail" <'"${email['rcpt']}"'>
+Subject: from '"${email['user']}"' to Gamil
+Date: '"$(date)"'
+
+'"${email['body']}"' ';
+
+            echo "$email_content" | curl -s \
+                --url "smtp://${email['smtp']}:${email['port']}" \
+                --user "${email['user']}:${email['pass']}" \
+                --mail-from "${email['user']}" \
+                --mail-rcpt "${email['rcpt']}" \
+                --upload-file - # email.txt
+            
+            print_result $? 'email' 'send';
+        ;;
+    esac
 fi
