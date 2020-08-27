@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,fmp:,fl:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,fmp:,fl:,fr:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -361,8 +361,8 @@ while true ; do
             shift 2;
         ;;
 
-        #
-        -r | --remote-path )
+        # FTP remote path
+        --fr )
             FTP['remote_path']=$2;
             shift 2;
         ;;
@@ -443,7 +443,7 @@ if [[ ${FTP['flag']} == 1 ]]; then
             if [[ ${FTP['remote_path']} == '' ]]; then
                 echo "$(colorize 'red' 'ERROR') ...";
                 echo "Absolute path to the remote file is required!.";
-                echo "Use '-r' or '--remote-path with a given file name.'.";
+                echo "Use '--fr' with a given file name.'.";
                 exit 2;
             fi
 
