@@ -63,7 +63,7 @@ arguments:
 
  -E | --email           DNS actions ...
     |                   $(colorize 'cyan' 'send'): send an email
-    | --email-conf      configuration file for sending an email
+    | --ec              configuration file for sending an email
     | --email-body      body (= contents) of the email that is send
 
  -h | --help            print this help
@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dc:,email:,email-conf:,email-body:,fmp:,fl:,fr:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dc:,email:,ec:,email-body:,fmp:,fl:,fr:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -318,7 +318,7 @@ while true ; do
             shift 2;
         ;;
 
-        --email-conf )
+        --ec )
             email['conf']=$2;
             email_read_conf;
             shift 2;
@@ -658,7 +658,7 @@ if [[ ${email['flag']} == 1 ]]; then
     if [[ ${email['conf']} == '' ]]; then
         echo "$(colorize 'red' 'ERROR') ...";
         echo "A configuration file is required for sending an email.";
-        echo "Use '--email-conf' and provide it file name";
+        echo "Use '--ec' and provide it file name";
         exit 2;
     fi
 
