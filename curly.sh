@@ -81,7 +81,7 @@ function __debug(){
     echo '######### DEBUG ##########';
     echo "conf file $_conf_path_";
     echo "ftp ${FTP['action']}";
-    echo "mount-point ${FTP['mount_point']}";
+    echo "mount point ${FTP['mount_point']}";
     echo
     echo
     echo -e "1. $_user_domain_ \n2. $_user_name_ \n3. $_user_pass_";
@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,fmp:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -329,8 +329,8 @@ while true ; do
             shift 2;
         ;;
 
-        # --mount-point
-        -m | --mount-point )
+        # ftp mount point
+        --fmp )
             FTP['mount_point']=$2;
 
             # check if the directory exist
@@ -406,8 +406,8 @@ if [[ ${FTP['flag']} == 1 ]]; then
         mount )
            if [[ ${FTP['mount_point']} == '' ]]; then
                 echo "$(colorize 'yellow' 'WARNING' ) ...";
-                echo "With 'mount' ftp a 'mount-point' is required.";
-                echo "Use -m or --mount-point with a path.";
+                echo "With 'mount' ftp a 'mount point' is required.";
+                echo "Use '--fmp' with a path.";
                 exit 2;
             fi
 
@@ -418,8 +418,8 @@ if [[ ${FTP['flag']} == 1 ]]; then
         umount )
             if [[ ${FTP['mount_point']} == '' ]]; then
                 echo "$(colorize 'yellow' 'WARNING' ) ...";
-                echo "With 'umount' ftp a 'mount-point' is required.";
-                echo "Use -m or --mount-point with a path.";
+                echo "With 'umount' ftp a 'mount point' is required.";
+                echo "Use '--fmp' with a path.";
                 exit 2;
             fi
 
