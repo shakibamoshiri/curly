@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,fmp:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,fmp:,fl:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -355,8 +355,8 @@ while true ; do
             shift 2;
         ;;
 
-        ## -l or --local-file
-        -l | --local-file )
+        ## FTP local file
+        --fl )
             FTP['local_file']=$2
             shift 2;
         ;;
@@ -431,7 +431,7 @@ if [[ ${FTP['flag']} == 1 ]]; then
             if [[ $flag_local_file == 0 ]]; then
                 echo "$(colorize 'yellow' 'WARNING') ...";
                 echo "A file is required with 'upload' action";
-                echo "Use '-l' or '--local-file' and give it a single file name";
+                echo "use '--fl' and give it a single file name";
                 exit 2;
             fi
 
