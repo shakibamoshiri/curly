@@ -58,7 +58,7 @@ arguments:
     |                   $(colorize 'cyan' 'root'): check on root DNS servers
     |                   $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
     |                   $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
-    | --dns-server      a custom DNS server, default is: 1.1.1.1
+    | --dc              custom DNS servers, default is: 1.1.1.1
     |                   or a file containing some DNS servers ( IPs | names )
 
  -E | --email           DNS actions ...
@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,fmp:,fl:,fr:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dc:,email:,email-conf:,email-body:,fmp:,fl:,fr:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -307,7 +307,7 @@ while true ; do
             dns['action']=$2;
             shift 2;
         ;;
-        --dns-server )
+        --dc )
             dns['server']=$2;
             shift 2;
         ;;
