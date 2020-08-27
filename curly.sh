@@ -61,7 +61,7 @@ arguments:
     | --dc              dns servers to use, default is: 1.1.1.1
     |                   or a file containing some DNS servers ( IPs | names )
 
- -E | --email           DNS actions ...
+ -E | --email           Email actions ...
     |                   $(colorize 'cyan' 'send'): send an email
     | --ec              email configuration file for sending an email
     | --eb              email body (= contents) of the email that is send
