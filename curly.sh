@@ -64,7 +64,7 @@ arguments:
  -E | --email           DNS actions ...
     |                   $(colorize 'cyan' 'send'): send an email
     | --ec              configuration file for sending an email
-    | --email-body      body (= contents) of the email that is send
+    | --eb              body (= contents) of the email that is send
 
  -h | --help            print this help
  -d | --domain          name of a domain, e.g. example.com
@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dc:,email:,ec:,email-body:,fmp:,fl:,fr:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dc:,email:,ec:,eb:,fmp:,fl:,fr:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -324,7 +324,7 @@ while true ; do
             shift 2;
         ;;
 
-        --email-body )
+        --eb )
             email['body']=$2;
             shift 2;
         ;;
