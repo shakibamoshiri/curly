@@ -36,6 +36,10 @@ arguments:
     |                   $(colorize 'cyan' 'umount'): umount: umount FTP mount point
     |                   $(colorize 'cyan' 'upload'): upload: upload to a FTP account
     |                   $(colorize 'cyan' 'download'): download: download from a FTP account
+ -c | --conf-file       path to configuration file
+ -m | --mount-point     path to a directory
+ -l | --local-file      a single file for uploading over FTP
+ -r | --remote-path     an absolute remote path for the FTP account
 
  -S | --ssl             SSL actions ...
     |                   $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
@@ -63,10 +67,6 @@ arguments:
     | --email-body      body (= contents) of the email that is send
 
  -h | --help            print this help
- -c | --conf-file       path to configuration file
- -m | --mount-point     path to a directory
- -l | --local-file      a single file for uploading over FTP
- -r | --remote-path     an absolute remote path for the FTP account
  -d | --domain          name of a domain, e.g. example.com
 
 Copyright (C) 2020 Shakiba Moshiri
@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:f:s:H:D:E:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
