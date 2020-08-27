@@ -30,14 +30,14 @@ definition:
  doing things in a 'curl' way ...
 
 arguments:
- -f | --ftp             FTP actions ...
+ -F | --ftp             FTP actions ...
     |                   $(colorize 'cyan' 'check'): checking FTP connection
     |                   $(colorize 'cyan' 'mount'): mount over FTP
     |                   $(colorize 'cyan' 'umount'): umount: umount FTP mount point
     |                   $(colorize 'cyan' 'upload'): upload: upload to a FTP account
     |                   $(colorize 'cyan' 'download'): download: download from a FTP account
 
- -s | --ssl             SSL actions ...
+ -S | --ssl             SSL actions ...
     |                   $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
     |                   $(colorize 'cyan' 'date'): check start and end date of the certificate
     |                   $(colorize 'cyan' 'cert'): show the certificate
@@ -261,7 +261,7 @@ while true ; do
         ;;
         
         # --ftp
-        -f | --ftp )
+        -F | --ftp )
             FTP['flag']=1;
             FTP['action']=$2;
             case "$2" in
@@ -283,7 +283,7 @@ while true ; do
             shift 2;
         ;;
 
-        -s | --ssl )
+        -S | --ssl )
             ssl['flag']=1;
             ssl['action']=$2;
             case $2 in
