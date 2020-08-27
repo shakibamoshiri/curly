@@ -36,10 +36,10 @@ arguments:
     |                   $(colorize 'cyan' 'umount'): umount: umount FTP mount point
     |                   $(colorize 'cyan' 'upload'): upload: upload to a FTP account
     |                   $(colorize 'cyan' 'download'): download: download from a FTP account
- -c | --conf-file       path to configuration file
- -m | --mount-point     path to a directory
- -l | --local-file      a single file for uploading over FTP
- -r | --remote-path     an absolute remote path for the FTP account
+    | --fc              path to configuration file
+    | --fmp             path to a directory
+    | --fl              a single file for uploading over FTP
+    | --fr              an absolute remote path for the FTP account
 
  -S | --ssl             SSL actions ...
     |                   $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
@@ -79,7 +79,7 @@ https://github.com/k-five/curly "
 ################################################################################
 function __debug(){
     echo '######### DEBUG ##########';
-    echo "conf-file $_conf_path_";
+    echo "conf file $_conf_path_";
     echo "ftp ${FTP['action']}";
     echo "mount-point ${FTP['mount_point']}";
     echo
@@ -132,7 +132,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,conf-file:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dns-server:,email:,email-conf:,email-body:,mount-point:,local-file:,remote-path:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -200,7 +200,7 @@ function check_conf_path(){
     # check if length of the array is 3
     if [[ ${#_conf_file_[@]} != 3 ]]; then
         echo "$(colorize 'yellow' 'WARNING') ...";
-        echo "conf-file format is NOT valid or some lines are missed!";
+        echo "conf file format is NOT valid or some lines are missed!";
         echo -e "\nRight format ...";
         echo "example.com  # should be a domain name or an IP address";
         echo "username     # should be the username";
@@ -232,7 +232,7 @@ function email_read_conf(){
     # check if length of the array is 3
     if [[ ${#temp_var[@]} != 5 ]]; then
         echo "$(colorize 'yellow' 'WARNING') ...";
-        echo "conf-file format is NOT valid or some lines are missed!";
+        echo "conf file format is NOT valid or some lines are missed!";
         echo -e "\nRight format ...";
         exit 2;
     fi
@@ -254,7 +254,7 @@ while true ; do
         ;;
         
         # configure file
-        -c | --conf-file )
+        --fc )
             FTP['conf_path']=$2;
             check_conf_path
             shift 2;
@@ -393,7 +393,7 @@ if [[ ${FTP['flag']} == 1 ]]; then
     if [[ ${FTP['conf_path']} == '' && ${FTP['action']} != 'umount' ]]; then
         echo "$(colorize 'red' 'ERROR') ...";
         echo "The configuration file is required with ${FTP['action']} action.";
-        echo "Use '-c' or '--conf-file' and give it a path to configuration file name.";
+        echo "Use '--fc' and give it a path to configuration file name.";
         exit 2;
     fi
 
