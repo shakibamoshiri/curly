@@ -36,10 +36,10 @@ arguments:
     |                   $(colorize 'cyan' 'umount'): umount: umount FTP mount point
     |                   $(colorize 'cyan' 'upload'): upload: upload to a FTP account
     |                   $(colorize 'cyan' 'download'): download: download from a FTP account
-    | --fc              path to configuration file
-    | --fmp             path to a directory
-    | --fl              a single file for uploading over FTP
-    | --fr              an absolute remote path for the FTP account
+    | --fc              ftp configuration file
+    | --fmp             ftp mount point (local machine)
+    | --fl              ftp local file for upload
+    | --fr              ftp remote path
 
  -S | --ssl             SSL actions ...
     |                   $(colorize 'cyan' 'valid'): checking if SSL of a domain is valid
@@ -58,13 +58,13 @@ arguments:
     |                   $(colorize 'cyan' 'root'): check on root DNS servers
     |                   $(colorize 'cyan' 'public'): check on public DNS servers e.g 1.1.1.1
     |                   $(colorize 'cyan' 'trace'): trace from a public DNS server to main server
-    | --dc              custom DNS servers, default is: 1.1.1.1
+    | --dc              dns servers to use, default is: 1.1.1.1
     |                   or a file containing some DNS servers ( IPs | names )
 
  -E | --email           DNS actions ...
     |                   $(colorize 'cyan' 'send'): send an email
-    | --ec              configuration file for sending an email
-    | --eb              body (= contents) of the email that is send
+    | --ec              email configuration file for sending an email
+    | --eb              email body (= contents) of the email that is send
 
  -h | --help            print this help
  -d | --domain          name of a domain, e.g. example.com
