@@ -1,131 +1,198 @@
 #!/bin/bash
 
+################################################################################
+# Title: curly completion script
+# Author: Shakiba Moshiri
+# Date: 20XX
+################################################################################
 
-complete_flags () {
-    COMPREPLY=('--ftp' '--ssl' '--http' '--dns' '--email');
-    case ${COMP_WORDS[ $COMP_CWORD ]} in
-        --f )
-            COMPREPLY=('--ftp')
-        ;;
-        --s )
-            COMPREPLY=('--ssl')
-        ;;
-        --h )
-            COMPREPLY=('--http')
-        ;;
-        --d )
-            COMPREPLY=('--dns')
-        ;;
-        --e )
-            COMPREPLY=('--email')
-        ;;
-    esac
-}
+###
+# long flags && short flags
+###
+curly_flags=(--{ftp,ssl,dns,http,email,fc,fmp,fr,fl,dc,domain});
+curly_flags_short=(-{F,S,H,D,E,h,d});
 
-complete_ftp () {
-    COMPREPLY=( 'check' 'upload' 'download' 'mount' 'umount' );
-    case ${COMP_WORDS[$COMP_CWORD]} in
-        u | up | upl )
-            COMPREPLY=('upload')
-        ;;
-        c | ch | che )
-            COMPREPLY=('check')
-        ;;
-        d | do | dow | down )
-            COMPREPLY=('download')
-        ;;
-        m | mo | mon )
-            COMPREPLY=('mount')
-        ;;
-        um | umo | umou)
-            COMPREPLY=('umount')
-        ;;
-    esac
-}
+###
+# list of actions
+###
+ftp_actions=(check upload download mount umount);
+ssl_actions=(valid date cert name);
+http_actions=(response redirect status ttfb gzip);
+dns_actions=(root public trace);
+email_actions=(send);
 
-complete_ssl () {
-    COMPREPLY=( 'valid' 'date' 'cert' 'name' );
-    case ${COMP_WORDS[$COMP_CWORD]} in
-        v )
-            COMPREPLY=('valid')
+################################################################################
+# function for completing actions
+################################################################################
+comp_ftp () {
+    case $1 in
+        c )
+            COMPREPLY=(check);
+        ;;
+        up )
+            COMPREPLY=(upload);
         ;;
         d )
-            COMPREPLY=('date')
+            COMPREPLY=(download);
+        ;;
+        m )
+            COMPREPLY=(mount);
+        ;;
+        um )
+            COMPREPLY=(umount);
+        ;;
+        u )
+            COMPREPLY=( $(echo ${ftp_actions[@]} | egrep -o '\bu[^ ]+\b') );
+        ;;
+        [!cudm] )
+            COMPREPLY=("# invalid action '$1' for FTP");
+        ;;
+    esac
+}
+
+comp_ssl () {
+    case $1 in
+        v )
+            COMPREPLY=(valid);
+        ;;
+        d )
+            COMPREPLY=(date);
         ;;
         c )
-            COMPREPLY=('cert')
+            COMPREPLY=(cert);
         ;;
         n )
-            COMPREPLY=('name')
+            COMPREPLY=(name);
+        ;;
+        [!vdcn] )
+            COMPREPLY=("# invalid action '$1' for SSL");
         ;;
     esac
 }
 
-complete_http () {
-    COMPREPLY=('response' 'redirect' 'status' 'ttfb' 'gzip');
-    case ${COMP_WORDS[$COMP_CWORD]} in
-        res | resp )
-            COMPREPLY=('response')
+comp_http () {
+    case $1 in
+        r | re )
+            COMPREPLY=( $(echo ${http_actions[@]} | egrep -o 'r[^ ]+\b') );
         ;;
-        red | redir )
-            COMPREPLY=('redirect')
+        res )
+            COMPREPLY=(response);
         ;;
-        s | st )
-            COMPREPLY=('status')
+        red )
+            COMPREPLY=(redirect);
         ;;
-        t | tt )
-            COMPREPLY=('ttfb')
+        s )
+            COMPREPLY=(status)
         ;;
-        g | gz )
-            COMPREPLY=('gzip')
+        t )
+            COMPREPLY=(ttfb);
+        ;;
+        g )
+            COMPREPLY=(gzip);
+        ;;
+
+        [!rtg])
+            COMPREPLY=("# invalid action '$1' for HTTP");
         ;;
     esac
 }
 
-complete_dsn () {
-    COMPREPLY=('root' 'public' 'trace');
-    case ${COMP_WORDS[ $COMP_CWORD ]} in
-        r | ro )
-            COMPREPLY=('root')
+comp_dns () {
+    case $1 in
+        r )
+            COMPREPLY=(root);
         ;;
-        p | pu | pub )
-            COMPREPLY=('public')
+        p )
+            COMPREPLY=(public);
         ;;
-        t | tr )
-            COMPREPLY=('trace')
+        t )
+            COMPREPLY=(trace);
+        ;;
+        [!rpt] )
+            COMPREPLY=("# invalid action '$1' for DNS");
         ;;
     esac
 }
 
-curly_comp () {
-    if [[ $COMP_CWORD < 3 ]]; then
-        complete_flags;
-        
-        if [[ ${COMP_WORDS[$COMP_CWORD-1]} = '--ftp' ]]; then
-            complete_ftp;
-        fi
-
-        if [[ ${COMP_WORDS[$COMP_CWORD-1]} = '--ssl' ]]; then
-            complete_ssl;
-        fi
-
-        if [[ ${COMP_WORDS[$COMP_CWORD-1]} = '--http' ]]; then
-            complete_http;
-        fi
-
-        if [[ ${COMP_WORDS[$COMP_CWORD-1]} = '--dns' ]]; then
-            complete_dsn;
-        fi
-    # when there is no match fall back to default
-    else
-        # bash -4v
-        # compopt -o nospace -o default -o bashdefault;
-        # COMPREPLY=( $(compgen -S "/" -d "${COMP_WORDS[$COMP_CWORD]}") )
-        
-        # bash +4v
-        compopt -o default;
-        COMPREPLY=()
-    fi
+comp_email () {
+    case $1 in
+        s )
+            COMPREPLY=(send);
+        ;;
+        [!s] )
+            COMPREPLY=("# invalid action '$1' for Email");
+        ;;
+    esac
 }
 
-complete -o bashdefault -o default  -F curly_comp curly;
+
+################################################################################
+# main function which invoked by "complete -F"
+################################################################################
+comp () {
+    CURRENT_FLAG=${COMP_WORDS[$COMP_CWORD]};
+    PERVIOU_FLAG=${COMP_WORDS[$COMP_CWORD-1]};
+
+    # COMPREPLY=();
+    case ${COMP_WORDS[$COMP_CWORD-1]} in
+        -F | --ftp )
+            COMPREPLY=(${ftp_actions[@]})
+            comp_ftp ${CURRENT_FLAG};
+        ;;
+        -S | --ssl )
+            COMPREPLY=(${ssl_actions[@]})
+            comp_ssl ${CURRENT_FLAG};
+        ;;
+        -H | --http )
+            COMPREPLY=(${http_actions[@]})
+            comp_http ${CURRENT_FLAG};
+        ;;
+        -D | --dns )
+            COMPREPLY=(${dns_actions[@]})
+            comp_dns ${CURRENT_FLAG};
+        ;;
+        -E | --email )
+            COMPREPLY=(${email_actions[@]})
+            comp_email ${CURRENT_FLAG};
+        ;;
+    esac
+
+    case ${CURRENT_FLAG} in
+        --f )
+            COMPREPLY=( $(echo ${curly_flags[*]} | egrep -o '\-\-f[^ ]+\b') );
+        ;;
+        --ft )
+            COMPREPLY=(--ftp);
+        ;;
+        --fc | --fmp | --fr | --fl | --dc | -d )
+            COMPREPLY=(${CURRENT_FLAG});
+        ;;
+        -F | -S | -H | -D | -E )
+            COMPREPLY=(${CURRENT_FLAG});
+        ;;
+        --fm )
+            COMPREPLY=(--fmp)
+        ;;
+        --s )
+            COMPREPLY=(--ssl)
+        ;;
+        --h )
+            COMPREPLY=(--http)
+        ;;
+        --d )
+            COMPREPLY=(--dns)
+        ;;
+        --e )
+            COMPREPLY=(--emaill)
+        ;;
+        - )
+            COMPREPLY=(${curly_flags_short[@]})
+        ;;
+        -- )
+            COMPREPLY=(${curly_flags[@]})
+        ;;
+    esac
+}
+
+complete -o bashdefault -o nosort  -o default -F comp curly
+
