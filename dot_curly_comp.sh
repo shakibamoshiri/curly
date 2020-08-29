@@ -9,7 +9,7 @@
 ###
 # long flags && short flags
 ###
-curly_flags=(--{ftp,ssl,dns,http,email,fc,fmp,fr,fl,dc,domain});
+curly_flags=(--{ftp,ssl,dns,http,email,fc,fmp,fr,fl,dc,domain,help});
 curly_flags_short=(-{F,S,H,D,E,h,d});
 
 ###
@@ -177,7 +177,13 @@ comp () {
             COMPREPLY=(--ssl)
         ;;
         --h )
-            COMPREPLY=(--http)
+            COMPREPLY=( $(echo ${curly_flags[@]} | egrep -o '\-\-h[^ ]+\b') );
+        ;;
+        --ht )
+            COMPREPLY=(--http);
+        ;;
+        --he )
+            COMPREPLY=(--help)
         ;;
         --d )
             COMPREPLY=( $(echo ${curly_flags[@]} | egrep -o '\-\-d[^ ]+\b') );
