@@ -42,7 +42,7 @@ comp_ftp () {
             COMPREPLY=(umount);
         ;;
         u )
-            COMPREPLY=( $(echo ${ftp_actions[@]} | egrep -o '\bu[^ ]+\b') );
+            COMPREPLY=( $(egrep -o '\bu[^ ]+\b' <<< ${ftp_actions[@]}) );
         ;;
         [!cudm] )
             COMPREPLY=("# invalid action '$1' for FTP");
@@ -73,7 +73,7 @@ comp_ssl () {
 comp_http () {
     case $1 in
         r | re )
-            COMPREPLY=( $(echo ${http_actions[@]} | egrep -o 'r[^ ]+\b') );
+            COMPREPLY=( $(egrep -o 'r[^ ]+\b' <<< ${http_actions[@]}) );
         ;;
         res )
             COMPREPLY=(response);
@@ -159,7 +159,7 @@ comp () {
 
     case ${CURRENT_FLAG} in
         --f )
-            COMPREPLY=( $(echo ${curly_flags[*]} | egrep -o '\-\-f[^ ]+\b') );
+            COMPREPLY=( $(egrep -o '\-\-f[^ ]+\b' <<< ${curly_flags[@]}) );
         ;;
         --ft )
             COMPREPLY=(--ftp);
@@ -177,7 +177,7 @@ comp () {
             COMPREPLY=(--ssl)
         ;;
         --h )
-            COMPREPLY=( $(echo ${curly_flags[@]} | egrep -o '\-\-h[^ ]+\b') );
+            COMPREPLY=( $(egrep -o '\-\-h[^ ]+\b' <<< ${curly_flags[@]}) );
         ;;
         --ht )
             COMPREPLY=(--http);
@@ -186,7 +186,7 @@ comp () {
             COMPREPLY=(--help)
         ;;
         --d )
-            COMPREPLY=( $(echo ${curly_flags[@]} | egrep -o '\-\-d[^ ]+\b') );
+            COMPREPLY=( $(egrep -o '\-\-d[^ ]+\b' <<< ${curly_flags[@]}) );
         ;;
         --dn )
             COMPREPLY=(--dns)
