@@ -195,7 +195,7 @@ comp () {
             COMPREPLY=(--domain)
         ;;
         --e )
-            COMPREPLY=(--emaill)
+            COMPREPLY=(--email)
         ;;
         - )
             COMPREPLY=(${curly_flags_short[@]})
