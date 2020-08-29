@@ -164,7 +164,7 @@ comp () {
         --ft )
             COMPREPLY=(--ftp);
         ;;
-        --fc | --fmp | --fr | --fl | --dc | -d )
+        --fc | --fmp | --fr | --fl | --dc | -d | -h )
             COMPREPLY=(${CURRENT_FLAG});
         ;;
         -F | -S | -H | -D | -E )
@@ -180,7 +180,13 @@ comp () {
             COMPREPLY=(--http)
         ;;
         --d )
+            COMPREPLY=( $(echo ${curly_flags[@]} | egrep -o '\-\-d[^ ]+\b') );
+        ;;
+        --dn )
             COMPREPLY=(--dns)
+        ;;
+        --do )
+            COMPREPLY=(--domain)
         ;;
         --e )
             COMPREPLY=(--emaill)
@@ -190,6 +196,9 @@ comp () {
         ;;
         -- )
             COMPREPLY=(${curly_flags[@]})
+        ;;
+        --[A-Z] )
+            COMPREPLY=("# invalid name '$CURRENT_FLAG' for -- long options");
         ;;
     esac
 }
