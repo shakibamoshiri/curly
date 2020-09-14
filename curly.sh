@@ -46,6 +46,8 @@ arguments:
     |                   $(colorize 'cyan' 'date'): check start and end date of the certificate
     |                   $(colorize 'cyan' 'cert'): show the certificate
     |                   $(colorize 'cyan' 'name'): name of domains the certificate issued for
+    |                   $(colorize 'cyan' 'issue_dv'): issue Domain Validation cert
+    |                   $(colorize 'cyan' 'issue_wc'): issue Wild Card cert
 
  -H | --http            HTTP actions ....
     |                   $(colorize 'cyan' 'response'): print response header of server
@@ -529,6 +531,14 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 exit 0;
             fi
             print_result $? 'ssl' 'name';
+        ;;
+
+        issue_dv )
+            echo 'issue_dv';
+        ;;
+
+        issue_wc )
+            echo 'issue_wc';
         ;;
 
         * )
