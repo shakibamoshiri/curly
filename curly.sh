@@ -534,11 +534,17 @@ if [[ ${ssl['flag']} == 1 ]]; then
         ;;
 
         issue_dv )
-            echo 'issue_dv';
+            if [[ ${FTP['mount_point']} == '' ]]; then
+                echo "$(colorize 'yellow' 'WARNING' ) ...";
+                echo "With ${ssl['action']} ssl a 'mount point' is required.";
+                echo "Use '--fmp' with a path.";
+                exit 2;
+            fi
+            certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --webroot -w ${FTP['mount_point']} -d ${ssl['domain']} -d www.${ssl['domain']};
         ;;
 
         issue_wc )
-            echo 'issue_wc';
+            certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --manual --preferred-challenges dns -d ${ssl['domain']} -d *.${ssl['domain']};
         ;;
 
         * )
