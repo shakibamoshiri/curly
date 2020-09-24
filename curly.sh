@@ -636,7 +636,12 @@ if [[ ${dns['flag']} == 1 ]]; then
 
     case ${dns['action']} in
         ro | root )
-            echo ${dns['domain']} | perl -lne '/(?<=\.).*?$/ && print $&' | xargs -I xxx whois xxx | grep nserver | awk '{print $2}' | xargs -I xxx dig ANY ${dns['domain']}  @xxx;
+            TLD=$(egrep -o '[^\.]+$' <<< ${dns['domain']});
+            while read server; do
+                echo;
+                echo $(colorize 'cyan' "mNS server $server");
+                dig +nocmd +nocomments +nostats NS ${dns['domain']} @${server};
+            done < <(whois $TLD | grep -i nserver | perl -alne 'print $F[1]');
         ;;
 
         pub | public )
