@@ -475,26 +475,13 @@ if [[ ${ssl['flag']} == 1 ]]; then
 
     case ${ssl['action']} in
         valid )
-            command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server');
-            if [[ $? != 0 ]]; then
-                echo "${ssl['domain']} does not have a valid certificate."
-                exit 0;
-            fi
-            echo "$command_output" | sed 's/^\* \+//g';
+            echo | openssl s_client -showcerts -connect ${ssl['domain']}:443 |& grep -i 'return code' | sed 's/^ \+//g'
             print_result $? 'ssl' 'valid';
         ;;
 
         date )
-            command_output=$(curl -vI https://${ssl['domain']} 2>&1 | grep -A 6 '* Server' | grep date);
-            if [[ $? != 0 ]]; then
-                echo "${ssl['domain']} does not have a valid certificate.";
-                exit 0;
-            fi
-            echo "$command_output" | sed 's/^\* \+//g' | sed 's/start date:/start date: /'
-
-            ssl_date=$(echo "$command_output" | sed 's/^[^A-Z]\+ //g');
-            ssl_start=$(echo "$ssl_date" | head -n 1);
-            ssl_end=$(echo "$ssl_date" | tail -n -1);
+            ssl_start=$(echo | openssl s_client -servername ${ssl['domain']} -connect ${ssl['domain']}:443 2>/dev/null | openssl x509 -noout -startdate | sed 's/.\+=//')
+            ssl_end=$(echo | openssl s_client -servername ${ssl['domain']}  -connect ${ssl['domain']}:443 2>/dev/null | openssl x509 -noout -enddate | sed 's/.\+=//')
 
             ssl_start_sec=$(date -u --date="$ssl_start" "+%s");
             ssl_end_sec=$(date -u --date="$ssl_end" "+%s");
@@ -506,9 +493,11 @@ if [[ ${ssl['flag']} == 1 ]]; then
             days_left=$(( $(( $ssl_end_sec -  $today_sec  )) / $one_day ));
             days_total=$(( $days_passed + $days_left ));
 
+            echo | openssl s_client -showcerts -connect ${ssl['domain']}:443 |& grep -i 'return code' | sed 's/^ \+//g'
+            echo | openssl s_client -servername ${ssl['domain']}  -connect ${ssl['domain']}:443 2>/dev/null | openssl x509 -noout -issuer -subject
+            echo "days total:  $days_total";
             echo "days passed: $days_passed";
             echo "days left:   $days_left";
-            echo "days total:  $days_total";
 
             print_result $? 'ssl' 'date';
         ;;
