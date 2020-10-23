@@ -495,6 +495,10 @@ if [[ ${ssl['flag']} == 1 ]]; then
             days_total=$(( $days_passed + $days_left ));
 
             echo | openssl s_client -showcerts -connect ${ssl['domain']}:443 |& grep -i 'return code' | sed 's/^ \+//g'
+            echo -n 'from: ';
+            date -u --date="$ssl_start"
+            echo -n 'till: ';
+            date -u --date="$ssl_end"
             echo "days total:  $days_total";
             echo "days passed: $days_passed";
             echo "days left:   $days_left";
