@@ -529,11 +529,11 @@ if [[ ${ssl['flag']} == 1 ]]; then
                 echo "Use '--fmp' with a path.";
                 exit 2;
             fi
-            certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --webroot -w ${FTP['mount_point']} -d ${ssl['domain']} -d www.${ssl['domain']};
+            certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --agree-tos --webroot -w ${FTP['mount_point']} -d ${ssl['domain']} -d www.${ssl['domain']};
         ;;
 
         issue_wc )
-            certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --manual --preferred-challenges dns -d ${ssl['domain']} -d *.${ssl['domain']};
+            certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --agree-tos --manual --preferred-challenges dns -d ${ssl['domain']} -d *.${ssl['domain']};
         ;;
 
         * )
