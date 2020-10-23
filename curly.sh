@@ -476,6 +476,7 @@ if [[ ${ssl['flag']} == 1 ]]; then
     case ${ssl['action']} in
         valid )
             echo | openssl s_client -showcerts -connect ${ssl['domain']}:443 |& grep -i 'return code' | sed 's/^ \+//g'
+            echo | openssl s_client -servername ${ssl['domain']}  -connect ${ssl['domain']}:443 2>/dev/null | openssl x509 -noout -issuer -subject | sed 's/, /\n/g'
             print_result $? 'ssl' 'valid';
         ;;
 
@@ -494,7 +495,6 @@ if [[ ${ssl['flag']} == 1 ]]; then
             days_total=$(( $days_passed + $days_left ));
 
             echo | openssl s_client -showcerts -connect ${ssl['domain']}:443 |& grep -i 'return code' | sed 's/^ \+//g'
-            echo | openssl s_client -servername ${ssl['domain']}  -connect ${ssl['domain']}:443 2>/dev/null | openssl x509 -noout -issuer -subject
             echo "days total:  $days_total";
             echo "days passed: $days_passed";
             echo "days left:   $days_left";
