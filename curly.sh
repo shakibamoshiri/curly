@@ -633,7 +633,10 @@ if [[ ${dns['flag']} == 1 ]]; then
             while read server; do
                 echo;
                 echo $(colorize 'cyan' "mNS server $server");
-                dig +nocmd +nocomments +nostats NS ${dns['domain']} @${server};
+                dig +nocmd +nocomments +nostats ANY ${dns['domain']} @${server};
+                if [[ $? == 0 ]]; then
+                    break;
+                fi
             done < <(whois $TLD | grep -i nserver | perl -alne 'print $F[1]');
         ;;
 
@@ -646,7 +649,14 @@ if [[ ${dns['flag']} == 1 ]]; then
                     echo 'falling back to default: 1.1.1.1';
                     exit 2;
                 fi
-                xargs -I xxx dig ${dns['domain']} ANY @xxx < ${dns['server']};
+                # xargs -I xxx dig ${dns['domain']} ANY @xxx < ${dns['server']};
+                while read server; do
+                    echo $(colorize 'cyan' "mNS server $server");
+                    dig +nocmd +nocomments +nostats AnY ${dns['domain']} @${server};
+                    if [[ $? == 0 ]]; then
+                        break;
+                    fi
+                done < ${dns['server']}
             # if it is NOT a file
             else
                 dig ${dns['domain']} A @${dns['server']};
