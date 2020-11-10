@@ -632,7 +632,7 @@ if [[ ${dns['flag']} == 1 ]]; then
             TLD=$(egrep -o '[^\.]+$' <<< ${dns['domain']});
             while read server; do
                 echo;
-                echo $(colorize 'cyan' "mNS server $server");
+                echo $(colorize 'cyan' "DNS server $server");
                 dig +nocmd +nocomments +nostats ANY ${dns['domain']} @${server};
                 if [[ $? == 0 ]]; then
                     break;
@@ -651,7 +651,7 @@ if [[ ${dns['flag']} == 1 ]]; then
                 fi
                 # xargs -I xxx dig ${dns['domain']} ANY @xxx < ${dns['server']};
                 while read server; do
-                    echo $(colorize 'cyan' "mNS server $server");
+                    echo $(colorize 'cyan' "DNS server $server");
                     dig +nocmd +nocomments +nostats AnY ${dns['domain']} @${server};
                     if [[ $? == 0 ]]; then
                         break;
