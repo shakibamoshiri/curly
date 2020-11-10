@@ -659,7 +659,8 @@ if [[ ${dns['flag']} == 1 ]]; then
                 done < ${dns['server']}
             # if it is NOT a file
             else
-                dig ${dns['domain']} A @${dns['server']};
+                echo $(colorize 'cyan' "DNS server ${dns['server']}");
+                dig +nocmd +nocomments +nostats A ${dns['domain']} @${dns['server']};
             fi
         ;;
 
