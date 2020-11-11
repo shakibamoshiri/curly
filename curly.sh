@@ -63,6 +63,13 @@ arguments:
     | --dc              dns servers to use, default is: 1.1.1.1
     |                   or a file containing some DNS servers ( IPs | names )
 
+ -I | --ip              IP actions ...
+    |                   $(colorize 'cyan' 'info'): any info based on shodan dB
+    |                   $(colorize 'cyan' 'port'): quick check open ports
+    |                   $(colorize 'cyan' 'route'): trace from a public DNS server to main server
+    | --dc              dns servers to use, default is: 1.1.1.1
+    |                   or a file containing some DNS servers ( IPs | names )
+
  -E | --email           Email actions ...
     |                   $(colorize 'cyan' 'send'): send an email
     | --ec              email configuration file for sending an email
