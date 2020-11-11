@@ -126,7 +126,7 @@ function command_check () {
     return_code=0;
 
     for cmd in ${_cmds_[@]}; do
-        temp_var=$(which  $cmd);
+        temp_var=$(which  $cmd > /dev/null 2>&1);
         if [[ $? != 0 ]]; then
             printf "%-20s %s" "$cmd~" "~" | tr ' ~' '. ';
             printf "[ $(colorize 'red' 'ERROR') ] not found\n";
