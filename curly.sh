@@ -76,6 +76,10 @@ arguments:
     | --ec              email configuration file for sending an email
     | --eb              email body (= contents) of the email that is send
 
+ -C | --command         Command actions ...
+    |                   $(colorize 'cyan' 'check'): check prerequisite for run curly
+    |                   $(colorize 'cyan' 'install'): install all prerequisite
+
  -h | --help            print this help
  -d | --domain          name of a domain, e.g. example.com
 
@@ -116,20 +120,25 @@ function print_result(){
 # grep, sed
 # nmap, perl
 ################################################################################
-declare -A _cmds_;
-_cmds_['curl']=$(which curl);
-_cmds_['curlftpfs']=$(which curlftpfs);
-_cmds_['perl']=$(which perl);
-_cmds_['nmap']=$(which nmap);
+function command_check () {
+    declare -a _cmds_;
+    _cmds_=(curl curlftpfs perl nmap openssl certbot dig grep sed shodan mtr echo);
+    return_code=0;
 
-for cmd in ${_cmds_[@]}; do
-    if ! [[ -x $cmd ]]; then
-        echo "ERROR ...";
-        echo "the $cmd is required";
-        echo "please install it";
-        exit 1;
-    fi
-done
+    for cmd in ${_cmds_[@]}; do
+        temp_var=$(which  $cmd);
+        if [[ $? != 0 ]]; then
+            printf "%-20s %s" "$cmd~" "~" | tr ' ~' '. ';
+            printf "[ $(colorize 'red' 'ERROR') ] not found\n";
+            return_code=1;
+        else
+            printf "%-20s %s" "$cmd~" "~" | tr ' ~' '. ';
+            printf "[ $(colorize 'green' 'OK') ]\n";
+
+        fi
+    done
+    return $return_code;
+}
 
 ################################################################################
 # if there is no flags, prints help
@@ -142,7 +151,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:I:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,ip:,ia:,im:,ic:,dc:,email:,ec:,eb:,fmp:,fl:,fr:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:I:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,ip:,ia:,im:,ic:,dc:,email:,command:,ec:,eb:,fmp:,fl:,fr:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -197,6 +206,9 @@ email['smtp']='';
 email['port']='';
 email['rcpt']='';
 
+declare -A command;
+command['flag']=0;
+command['action']='';
 
 ################################################################################
 # parse configuration file and assigns values to variables
@@ -363,6 +375,14 @@ while true ; do
             email['body']=$2;
             shift 2;
         ;;
+
+        # command
+        -C | --command )
+            command['flag']=1;
+            command['action']=$2;
+            shift 2;
+        ;;
+
 
         # ftp mount point
         --fmp )
@@ -747,6 +767,20 @@ if [[ ${ip['flag']} == 1 ]]; then
         ;;
     esac
 fi
+
+if [[ ${command['flag']} == 1 ]]; then
+    case ${command['action']} in
+        check )
+            command_check;
+            print_result $? 'command' 'check';
+        ;;
+
+        install )
+            echo 'install ...';
+        ;;
+    esac
+fi
+
 
 if [[ ${email['flag']} == 1 ]]; then
     if [[ ${email['conf']} == '' ]]; then
