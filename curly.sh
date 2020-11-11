@@ -66,7 +66,7 @@ arguments:
  -I | --ip              IP actions ...
     |                   $(colorize 'cyan' 'info'): any info based on shodan dB
     |                   $(colorize 'cyan' 'port'): quick check open ports
-    |                   $(colorize 'cyan' 'route'): trace from a public DNS server to main server
+    |                   $(colorize 'cyan' 'route'): trace route
     | --ia              ip address e.g. : 1.1.1.1
     | --im              maximum number of hops
     | --ic              set the number of pings sent
