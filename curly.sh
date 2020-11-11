@@ -67,8 +67,9 @@ arguments:
     |                   $(colorize 'cyan' 'info'): any info based on shodan dB
     |                   $(colorize 'cyan' 'port'): quick check open ports
     |                   $(colorize 'cyan' 'route'): trace from a public DNS server to main server
-    | --dc              dns servers to use, default is: 1.1.1.1
-    |                   or a file containing some DNS servers ( IPs | names )
+    | --ia              ip address e.g. : 1.1.1.1
+    | --im              maximum number of hops
+    | --ic              set the number of pings sent
 
  -E | --email           Email actions ...
     |                   $(colorize 'cyan' 'send'): send an email
@@ -141,7 +142,7 @@ fi
 ################################################################################
 # main flags, both longs and shorts
 ################################################################################
-ARGS=`getopt -o "hc:F:S:H:D:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,dc:,email:,ec:,eb:,fmp:,fl:,fr:,domain:" -- "$@"`
+ARGS=`getopt -o "hc:F:S:H:D:I:E:m:l:r:d:" -l "help,fc:,ftp:,ssl:,http:,dns:,ip:,ia:,im:,ic:,dc:,email:,ec:,eb:,fmp:,fl:,fr:,domain:" -- "$@"`
 eval set -- "$ARGS"
 
 ################################################################################
@@ -178,6 +179,13 @@ dns['flag']=0;
 dns['action']='';
 dns['domain']='';
 dns['server']='1.1.1.1';
+
+declare -A ip;
+ip['flag']=0;
+ip['action']='';
+ip['count']=10;
+ip['address']='';
+ip['max_hop']=0;
 
 declare -A email;
 email['flag']=0;
@@ -318,6 +326,24 @@ while true ; do
         ;;
         --dc )
             dns['server']=$2;
+            shift 2;
+        ;;
+
+        -I | --ip )
+            ip['flag']=1;
+            ip['action']=$2;
+            shift 2;
+        ;;
+        --ia )
+            ip['address']=$2;
+            shift 2;
+        ;;
+        --im )
+            ip['max_hop']=$2;
+            shift 2;
+        ;;
+        --ic )
+            ip['count']=$2;
             shift 2;
         ;;
 
@@ -684,6 +710,42 @@ if [[ ${dns['flag']} == 1 ]]; then
 
     esac
     
+fi
+
+if [[ ${ip['flag']} == 1 ]]; then
+    if [[ ${ip['address']} == '' ]]; then
+        echo "$(colorize 'red' 'ERROR') ...";
+        echo "An ip address is required";
+        echo "Use '--ia' and provide it an address";
+        exit 2;
+    fi
+    case ${ip['action']} in
+        info )
+            shodan host ${ip['address']};
+            print_result $? 'ip' 'info';
+        ;;
+
+        port )
+            sudo nmap --open -Pn -sS -F ${ip['address']};
+            print_result $? 'ip' 'port';
+        ;;
+
+        route )
+            if [[ ${ip['max_hop']} == 0 ]]; then
+                mtr --report-wide --report --report-cycles ${ip['count']} --show-ips ${ip['address']};
+            else
+                mtr --report-wide --report --report-cycles ${ip['count']} --show-ips --max-ttl ${ip['max_hop']} ${ip['address']};
+            fi
+            print_result $? 'ip' 'route';
+        ;;
+
+        * )
+            echo "$(colorize 'yellow' 'WARNING') ...";
+            echo "Action ${ip['action']} is not supported";
+            echo "Use '-h' or '--help' to see the available action for --ip";
+            exit 1;
+        ;;
+    esac
 fi
 
 if [[ ${email['flag']} == 1 ]]; then
