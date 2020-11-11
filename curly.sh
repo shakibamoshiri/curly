@@ -130,6 +130,9 @@ function command_check () {
         if [[ $? != 0 ]]; then
             printf "%-20s %s" "$cmd~" "~" | tr ' ~' '. ';
             printf "[ $(colorize 'red' 'ERROR') ] not found\n";
+            if [[ $cmd == 'shodan' ]]; then
+                echo '>  Please install shodan manually: https://cli.shodan.io/';
+            fi
             return_code=1;
         else
             printf "%-20s %s" "$cmd~" "~" | tr ' ~' '. ';
@@ -684,13 +687,13 @@ if [[ ${dns['flag']} == 1 ]]; then
         ro | root )
             TLD=$(egrep -o '[^\.]+$' <<< ${dns['domain']});
             while read server; do
-                echo;
                 echo $(colorize 'cyan' "DNS server $server");
                 dig +nocmd +nocomments +nostats ANY ${dns['domain']} @${server};
                 if [[ $? == 0 ]]; then
                     break;
                 fi
             done < <(whois $TLD | grep -i nserver | perl -alne 'print $F[1]');
+            print_result $? 'dns' 'root';
         ;;
 
         pub | public )
@@ -715,10 +718,12 @@ if [[ ${dns['flag']} == 1 ]]; then
                 echo $(colorize 'cyan' "DNS server ${dns['server']}");
                 dig +nocmd +nocomments +nostats A ${dns['domain']} @${dns['server']};
             fi
+            print_result $? 'dns' 'public';
         ;;
 
         tra | trace )
             dig +trace ${dns['domain']} @${dns['server']};
+            print_result $? 'dns' 'trace';
         ;;
 
         * )
