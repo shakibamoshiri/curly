@@ -776,7 +776,50 @@ if [[ ${command['flag']} == 1 ]]; then
         ;;
 
         install )
-            echo 'install ...';
+            os_release=$(perl -lne '/(centos|ubuntu|debian|arch)/i; $os=$&; END{print lc($os)}' /etc/*-release);
+            read -p "Is your OS $(colorize 'green' $os_release)? [ y / n ]: " os_confirm;
+            if [[ $os_confirm != 'y' ]]; then
+               echo "detected os: $os_release";
+               echo "noting done";
+               exit 0;
+            fi
+            centos_install=$(curl curlftpfs perl nmap openssl certbot grep sed mtr echo);
+            debian_install=$(curl curlftpfs perl nmap openssl certbot grep sed mtr echo);
+            ubuntu_install=$(curl curlftpfs perl nmap openssl certbot grep sed mtr echo);
+            arch_install=$(curl curlftpfs perl nmap openssl certbot grep sed mtr echo);
+            case $os_release in
+                centos )
+                    sudo yum -y update;
+                    sudo yum -y install net-tools;
+                    sudo yum -y install bind-utils;
+                    sudo yum -y install ${centos_install[@]};
+                ;;
+
+                debian )
+                    sudo apt-get -y update;
+                    sudo apt-get -y install net-tools;
+                    sudo apt-get -y install dnsutils;
+                    sudo apt-get -y install ${debian_install[@]};
+                ;;
+
+                ubuntu )
+                    sudo apt-get -y update;
+                    sudo apt-get -y install net-tools;
+                    sudo apt-get -y install dnsutils;
+                    sudo apt-get -y install ${ubuntu_install[@]};
+                ;;
+
+                arch )
+                    sudo pacman -Sy update;
+                    sudo pacman -Sy net-tools;
+                    sudo pacman -Sy dnsutils;
+                    sudo pacman -Sy install ${arch_install[@]};
+                ;;
+
+                * )
+                    echo 'A not supported os';
+                ;;
+            esac
         ;;
     esac
 fi
