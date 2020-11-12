@@ -15,7 +15,7 @@ Here are some receivers
 5. IP
 6. Email 
 
-and check receiver can deal with some actions e.g.  
+and a receiver can deal with some actions e.g.  
 1. check, mount, etc (for FTP)
 2. valid, date, etc (for SSL)
 4. root, trace, etc (for DNS)
