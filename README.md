@@ -1,52 +1,96 @@
 # curly
-doing things in a 'curl' way ..
+Speak `curl` for faster troubleshooting
+[docs.redcursor.ir/tools/curly](https://docs.redcursor.ir/tools/curly);
 
+## what is it?
+**curly** is a bash CLI for faster and simpler troubleshooting.  
+The workflow is based on **action** and **action-receiver**.  
+
+### action-receiver
+Here are some receivers  
+1. FTP
+2. SSL
+3. HTTP
+4. DNS
+5. IP
+6. Email 
+
+and check receiver can deal with some actions e.g.  
+1. check, mount, etc (for FTP)
+2. valid, date, etc (for SSL)
+4. root, trace, etc (for DNS)
+
+This type is design a scalable and later we can add more features to our app with minimum code manipulation.
+
+### Examples
+Check the FTP connection
 ```bash
- /home/shu/bin/curly help ...
+$ curly --ftp check --fc conf/dl.amozeshsabz.ir
+drwx--x---   7 ftp      ftp          4096 Jul 26 14:06 .
+drwx--x---   7 ftp      ftp          4096 Jul 26 14:06 ..
+-rw-r--r--   1 ftp      ftp            18 Apr  1  2020 .bash_logout
+-rw-r--r--   1 ftp      ftp           193 Apr  1  2020 .bash_profile
+-rw-r--r--   1 ftp      ftp           231 Apr  1  2020 .bashrc
+drwx--x--x   3 ftp      ftp          4096 Jul 13 11:26 domains
+drwxrwx---   3 ftp      ftp          4096 Jul 13 11:26 imap
+drwxrwx---   2 ftp      ftp          4096 Jul 13 11:26 Maildir
+drwxrwx---   2 ftp      ftp          4096 Nov  9 00:17 .php
+lrwxrwxrwx   1 ftp      ftp            42 Jul 13 11:26 public_html -> ./domains/pz11313.parspack.net/public_html
+-rw-r-----   1 ftp      ftp            98 Jul 13 11:26 .shadow
+-rw-r--r--   1 ftp      ftp            26 Jul 13 15:09 test-file.txt
+drwx------   2 ftp      ftp          4096 Jul 13 11:26 tmp
 
-definition:
- doing things in a 'curl' way ...
+option: ftp
+action: check
+status: OK
+```
 
-arguments:
- -F | --ftp             FTP actions ...
-    |                   check: checking FTP connection
-    |                   mount: mount over FTP
-    |                   umount: umount: umount FTP mount point
-    |                   upload: upload: upload to a FTP account
-    |                   download: download: download from a FTP account
-    | --fc              ftp configuration file
-    | --fmp             ftp mount point (local machine)
-    | --fl              ftp local file for upload
-    | --fr              ftp remote path
+check SSL date 
+```bash
+$ curly --ssl date -d shakiba.net
+Verify return code: 0 (ok)
+from: Mon Aug 10 00:00:00 UTC 2020
+till: Tue Aug 10 12:00:00 UTC 2021
+days total:  364
+days passed: 92
+days left:   272
 
- -S | --ssl             SSL actions ...
-    |                   valid: checking if SSL of a domain is valid
-    |                   date: check start and end date of the certificate
-    |                   cert: show the certificate
-    |                   name: name of domains the certificate issued for
+option: ssl
+action: date
+status: OK
+```
 
- -H | --http            HTTP actions ....
-    |                   response: print response header of server
-    |                   redirect: check if redirect id done or not
-    |                   status: print status for the GET request
-    |                   ttfb: print statistics about Time to First Byte
-    |                   gzip: check if gzip is enabled or not
+check TTFB of a domain 
+```bash
+curly --http ttfb -d media.shakiba.net
+url_effective       https://media.shakiba.net/
+time_namelookupe    0.012499 | DNS lookup
+time_connect        0.013454 | TCP connection
+time_appconnect     0.049755 | App connection
+time_redirect       0.005649 | Redirection time
+time_starttransfer  0.057018 | TTFB
+time_total          0.058207
 
- -D | --dns             DNS actions ...
-    |                   root: check on root DNS servers
-    |                   public: check on public DNS servers e.g 1.1.1.1
-    |                   trace: trace from a public DNS server to main server
-    | --dc              dns servers to use, default is: 1.1.1.1
-    |                   or a file containing some DNS servers ( IPs | names )
+option: http
+action: ttfb
+status: OK
+```
 
- -E | --email           Email actions ...
-    |                   send: send an email
-    | --ec              email configuration file for sending an email
-    | --eb              email body (= contents) of the email that is send
+check records of a domain and its root DNS server
+```bash
+curly --dns root -d derak.cloud
+DNS server A.NIC.CLOUD
+;derak.cloud.			IN	ANY
+derak.cloud.		3600	IN	NS	4.top.derak.cloud.
+derak.cloud.		3600	IN	NS	1.top.derak.cloud.
+derak.cloud.		3600	IN	NS	2.top.derak.cloud.
+derak.cloud.		3600	IN	NS	3.top.derak.cloud.
+4.top.derak.cloud.	3600	IN	A	159.69.229.229
+3.top.derak.cloud.	3600	IN	A	178.62.222.218
+2.top.derak.cloud.	3600	IN	A	5.145.112.112
+1.top.derak.cloud.	3600	IN	A	5.145.115.115
 
- -h | --help            print this help
- -d | --domain          name of a domain, e.g. example.com
-
-Copyright (C) 2020 Shakiba Moshiri
-https://github.com/k-five/curly
+option: dns
+action: root
+status: OK
 ```
