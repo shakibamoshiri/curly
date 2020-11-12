@@ -9,8 +9,8 @@
 ###
 # long flags && short flags
 ###
-curly_flags=(--{ftp,ssl,dns,http,email,fc,fmp,fr,fl,dc,domain,help});
-curly_flags_short=(-{F,S,H,D,E,h,d});
+curly_flags=($(egrep -o '\-\-[a-zA-Z0-9_]+' <(curly 2>&1)));
+curly_flags_short=($(egrep -o '\-[A-Z0-9_]+' <(curly 2>&1)));
 
 ###
 # list of actions
@@ -19,7 +19,9 @@ ftp_actions=(check upload download mount umount);
 ssl_actions=(valid date cert name);
 http_actions=(response redirect status ttfb gzip);
 dns_actions=(root public trace);
+ip_actions=(info port route);
 email_actions=(send);
+command_actions=(check install);
 
 ################################################################################
 # function for completing actions
@@ -114,6 +116,23 @@ comp_dns () {
     esac
 }
 
+comp_ip () {
+    case $1 in
+        i )
+           COMPREPLY=(info);
+        ;;
+        p )
+            COMPREPLY=(port);
+        ;;
+        r )
+            COMPREPLY=(root);
+        ;;
+        [!ipr] )
+            COMPREPLY=("# invalid action '$1' for ip");
+        ;;
+    esac
+}
+
 comp_email () {
     case $1 in
         s )
@@ -125,6 +144,19 @@ comp_email () {
     esac
 }
 
+comp_command () {
+    case $1 in
+        c | ch | che | chec )
+            COMPREPLY=(check);
+        ;;
+        i | in | ins | inst | insta )
+            COMPREPLY=(install);
+        ;;
+        [!ci] )
+            COMPREPLY=("# invalid action '$1' for command");
+        ;;
+    esac
+}
 
 ################################################################################
 # main function which invoked by "complete -F"
@@ -151,9 +183,17 @@ comp () {
             COMPREPLY=(${dns_actions[@]})
             comp_dns ${CURRENT_FLAG};
         ;;
+        -I | --ip )
+            COMPREPLY=(${ip_actions[@]})
+            comp_ip ${CURRENT_FLAG};
+        ;;
         -E | --email )
             COMPREPLY=(${email_actions[@]})
             comp_email ${CURRENT_FLAG};
+        ;;
+        -C | --command )
+            COMPREPLY=(${command_actions[@]})
+            comp_command ${CURRENT_FLAG};
         ;;
     esac
 
@@ -167,7 +207,7 @@ comp () {
         --fc | --fmp | --fr | --fl | --dc | -d | -h )
             COMPREPLY=(${CURRENT_FLAG});
         ;;
-        -F | -S | -H | -D | -E )
+        -F | -S | -H | -D | -E | -I | -C )
             COMPREPLY=(${CURRENT_FLAG});
         ;;
         --fm )
@@ -194,8 +234,14 @@ comp () {
         --do )
             COMPREPLY=(--domain)
         ;;
+        --i )
+            COMPREPLY=(--ip)
+        ;;
         --e )
             COMPREPLY=(--email)
+        ;;
+        --c )
+            COMPREPLY=(--command)
         ;;
         - )
             COMPREPLY=(${curly_flags_short[@]})
