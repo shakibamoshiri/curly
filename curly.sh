@@ -654,6 +654,8 @@ ssl_verify_result %{ssl_verify_result}
         ;;
 
         tt | tt | ttfb )
+            printf "%-20s" "date";
+            date '+%F at %T';
             curl -sLo /dev/null -w \
 'url_effective       %{url_effective}
 time_namelookupe    %{time_namelookup} | DNS lookup
