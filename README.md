@@ -1,6 +1,6 @@
 # curly
 Speak `curl` for faster troubleshooting
-[docs.redcursor.ir/tools/curly](https://docs.redcursor.ir/tools/curly);
+[docs](https://docs.shakiba.net/tools/curly);
 
 ## what is it?
 **curly** is a bash CLI for faster and simpler troubleshooting.  
